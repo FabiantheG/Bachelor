@@ -111,11 +111,7 @@ class Hedging_Strategy(Base):
     version = Column(Float)
 
 
-class  Portfolio(Base):
-    __tablename__ = "PORTFOLIO"
-    portfolio_id = Column(Integer, primary_key=True)
-    name = Column(String)
-    investor_cur = Column(String(3))
+
 
 
 class Simulation_Ref(Base):
@@ -156,7 +152,7 @@ class Asset_TS(Base):
     close = Column(Float)
     series_id = Column(Integer, ForeignKey('ASSET_REF.series_id'), primary_key=True)
 
-# ------------------ Portfolio Asset connection -----------------------
+# ------------------ Portfolio  -----------------------
 
 class portfolio_asset_connection(Base):
     __tablename__ = "PORTFOLIO_ASSET_CONNECTION"

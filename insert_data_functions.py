@@ -40,7 +40,4 @@ insert_yahoo_db("AAPL", start="2025-01-05", end="2025-01-15")
 
 
 
-def insert_csv_db():
-    pass
-
 
