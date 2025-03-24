@@ -1,0 +1,19 @@
+from sqlalchemy import Column, Integer, String, Float, Date, ForeignKey
+from .base import Base
+
+class CPI_Rates(Base):
+    __tablename__ = 'CPI_RATES'
+    currency = Column(String(3), primary_key=True)
+
+class CPI_Ref(Base):
+    __tablename__ = "CPI_REF"
+    series_id = Column(Integer, primary_key=True)
+    provider_id = Column(Integer, ForeignKey('PROVIDER.provider_id'))
+    currency = Column(String(3), ForeignKey('CPI_RATES.currency'))
+
+
+class CPI_TS(Base):
+    __tablename__ = "CPI_TS"
+    date = Column(Date, primary_key=True)
+    rate = Column(Float)
+    series_id = Column(Integer, ForeignKey('CPI_REF.series_id'), primary_key=True)
