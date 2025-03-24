@@ -1,5 +1,0 @@
-
-
-
-def fun():
-    print('hello')
