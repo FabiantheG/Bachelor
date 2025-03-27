@@ -7,9 +7,6 @@ class Hedging_Strategy(Base):
     name = Column(String)
     version = Column(Float)
 
-
-
-
 class Simulation_Ref(Base):
     __tablename__ = "SIMULATION_REF"
     simulation_id = Column(Integer, primary_key=True)
