@@ -1,4 +1,5 @@
-from SQL_Alchemy import *
+from database.session import session
+from database.models import *
 from functions import *
 
 def insert_yahoo_db(ticker, start, end):
@@ -34,11 +35,9 @@ def insert_yahoo_db(ticker, start, end):
             session.bulk_insert_mappings(Asset_TS, asset_ts_mappings)
 
 
+
+
 insert_yahoo_db("AAPL", start="2025-01-05", end="2025-01-15")
-
-
-
-
 
 
 
