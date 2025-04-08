@@ -148,7 +148,7 @@ def insert_fx(path,provider,duration):
 
 
 insert_yahoo_db("AAPL", start="2025-01-05", end="2025-01-15")
-#insert_fx('AUDUSD.csv',1,'1M')
+insert_fx('AUDUSD.csv',1,'1M')
 
 list = ['USDCHF','USDSEK','USDNOK','USDAUD','USDNZD','USDGBP','USDEUR','USDJPY','USDCAD','CHFUSD','SEKUSD','NOKUSD','AUDUSD','NZDUSD','GBPUSD','EURUSD','JPYUSD','CADUSD']
 
