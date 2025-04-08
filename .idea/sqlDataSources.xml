@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="DdlMappings">
+    <mapping uuid="37e535f5-aee4-48a9-8f2c-591e4b942527" name="GAM_DB@localhost Mapping">
+      <data-sources db="6211bede-1ed9-48f5-826d-0a1f71b785ef" />
+      <scope>
+        <node kind="database" qname="DB_GAM" />
+      </scope>
+    </mapping>
+  </component>
+</project>
