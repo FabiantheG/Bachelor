@@ -5,7 +5,7 @@ class Interest_Rate(Base):
     __tablename__ = 'INTEREST_RATE'
     ir_id = Column(Integer, primary_key=True)
     currency = Column(String(3))
-    duration = Column(Float)
+    duration = Column(String(5))
 
 
 class IR_Ref(Base):
@@ -15,7 +15,7 @@ class IR_Ref(Base):
     ir_id = Column(Integer, ForeignKey('INTEREST_RATE.ir_id'))
 
 
-class Interest_Rates_TS(Base):
+class IR_TS(Base):
     __tablename__ = "IR_TS"
     date = Column(Date, primary_key=True)
     rate = Column(Float)
