@@ -427,4 +427,4 @@ def insert_all_fx_forward():
         print(f"Finished inserting data for {forward_label}.\n")
 
 
-insert_all_fx_forward()
+#insert_all_fx_forward()
