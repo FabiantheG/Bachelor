@@ -4,6 +4,8 @@ from models.fx import FX_Rates, FX_Ref, FX_TS
 from session import session
 import pandas as pd
 
+
+
 # -------- FX Spot -----------
 
 def save_spot_price_csv():
@@ -38,8 +40,6 @@ def save_spot_price_csv():
     # Rückgabe der Spaltennamen als Kontrolle
     return df_final
 
-#print(save_spot_price_csv())
-
 
 def csv_spot_price_format(spot_label: str) -> pd.DataFrame:
     """
@@ -73,9 +73,6 @@ def csv_spot_price_format(spot_label: str) -> pd.DataFrame:
     # Return only the 'Date' and the desired spot label columns
     return spot_price_df[['Date', spot_label]]
 
-# Example call:
-#df = csv_spot_price_format('Spot_CHF_TO_USD')
-#print(df.head())
 
 def insert_full_fx(provider_name: str, duration: str, df: pd.DataFrame):
     """
@@ -168,10 +165,6 @@ def insert_full_fx(provider_name: str, duration: str, df: pd.DataFrame):
     print("FX import completed.")
 
 
-
-#insert_full_fx(provider_name='LSEG DS', duration='Spot', df=csv_spot_price_format('Spot_CHF_TO_USD'))
-
-
 def insert_all_spot_data():
     # List of spot price pairs.
     spot_pairs = [
@@ -198,15 +191,10 @@ def insert_all_spot_data():
         insert_full_fx(provider_name=provider_name, duration='Spot', df=df)
         print(f"Finished inserting data for {spot_label} provided by {provider_name}.\n")
 
-
-
 # insert_all_spot_data()
 
 
 # ----------- Forward Points ---------------
-
-
-import pandas as pd
 
 
 def save_forward_points_subset():
@@ -245,11 +233,6 @@ def save_forward_points_subset():
 
     # Gib die Spaltennamen zurück
     return df_subset
-
-
-#print(save_forward_points_subset())
-
-import pandas as pd
 
 
 def csv_forward_points_format(forward_label: str):
@@ -292,11 +275,6 @@ def csv_forward_points_format(forward_label: str):
 
     # Return only the 'Date' and the specified forward points label columns
     return forward_points_df[['Date', forward_label]]
-
-
-# Example usage:
-#df = csv_forward_points_format('CHF_TO_USD_6M_FWD_PTS')
-#print(df.head())
 
 
 def insert_fx_forward(provider_name: str, df: pd.DataFrame):
@@ -394,10 +372,6 @@ def insert_fx_forward(provider_name: str, df: pd.DataFrame):
 
     print("FX forward points import completed.")
 
-# insert_fx_forward(provider_name='bloomberg', df=csv_forward_points_format('CHF_TO_USD_6M_FWD_PTS'))
-
-
-
 
 def insert_all_fx_forward():
     names = [
@@ -425,6 +399,5 @@ def insert_all_fx_forward():
         df = csv_forward_points_format(forward_label)
         insert_fx_forward(provider_name=provider_name, df=df)
         print(f"Finished inserting data for {forward_label}.\n")
-
 
 #insert_all_fx_forward()
