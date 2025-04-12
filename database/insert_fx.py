@@ -191,7 +191,7 @@ def insert_all_spot_data():
         insert_full_fx(provider_name=provider_name, duration='Spot', df=df)
         print(f"Finished inserting data for {spot_label} provided by {provider_name}.\n")
 
-# insert_all_spot_data()
+insert_all_spot_data()
 
 
 # ----------- Forward Points ---------------
@@ -400,4 +400,4 @@ def insert_all_fx_forward():
         insert_fx_forward(provider_name=provider_name, df=df)
         print(f"Finished inserting data for {forward_label}.\n")
 
-#insert_all_fx_forward()
+insert_all_fx_forward()

@@ -29,7 +29,6 @@ def csv_cpi_format(currency):
                            names=["Date", "JPY", "USD", "CHF", "NOK", "SEK", "CAD", "NZD", "AUD", "EUR", "GBP"])
     cpi = cpi_data[['Date',currency]]
     return cpi
-from models.economic_indicator import Economic_Indicator  # oben ergänzen!
 
 
 def insert_full_cpi(provider_name: str, currency: str, df: pd.DataFrame):

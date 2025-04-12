@@ -1,29 +1,25 @@
-from sqlalchemy import Column, Integer, String, Date, Double, ForeignKey
+from sqlalchemy import Column, Integer, String, Float, Date, ForeignKey
+from sqlalchemy.orm import relationship, foreign
 from .base import Base
-from sqlalchemy.orm import relationship
 
 class GDP_Rates(Base):
     __tablename__ = 'GDP_RATES'
-    currency = Column(String(3), primary_key=True)
+    country = Column(String(30), primary_key=True)
 
 class GDP_Ref(Base):
     __tablename__ = "GDP_REF"
     series_id = Column(Integer, primary_key=True)
     provider_id = Column(Integer, ForeignKey('PROVIDER.provider_id'), comment='provider id')
-    currency = Column(String(3), ForeignKey('GDP_RATES.currency'), comment='currency code')
+    country = Column(String(30), ForeignKey('GDP_RATES.country'), comment='country code')
 
     indicator = relationship(
         "Economic_Indicator",
-        primaryjoin="GDP_Ref.series_id == Economic_Indicator.series_id",
-        uselist=False,
-        viewonly=True)
-
+        primaryjoin="GDP_Ref.series_id == foreign(Economic_Indicator.series_id)",
+        uselist=False
+    )
 
 class GDP_TS(Base):
     __tablename__ = 'GDP_TS'
-    series_id = Column(Integer, ForeignKey('GDP_REF.series_id'), primary_key=True)
     date = Column(Date, primary_key=True)
-    rate = Column(Double)
-
-
-
+    rate = Column(Float)
+    series_id = Column(Integer, ForeignKey('GDP_REF.series_id'), primary_key=True)

@@ -1,11 +1,18 @@
 
-# creat_table_einmalig.py
-
 from database.models.base import Base
-from database.session import engine
-import database.models  # sorgt dafür, dass alle Tabellen-Klassen registriert sind
+from database.session import engine  # stellt Verbindung zur Datenbank her
+import database.models.provider
+import database.models.economic_indicator
+import database.models.cpi
+import database.models.gdp
+import database.models.fx
+import database.models.interest_rate
+import database.models.asset
+import database.models.hedging
+import database.models.portfolio
 
-if __name__ == "__main__":
-    print("Erstelle Tabellen falls nicht vorhanden...")
-    Base.metadata.create_all(bind=engine)
-    print("Tabellen erfolgreich erstellt oder bereits vorhanden.")
+# Alle Tabellen löschen und neu erstellen (Achtung: Daten gehen verloren!)
+Base.metadata.drop_all(engine)   # nur falls du alles neu starten willst
+Base.metadata.create_all(engine)
+
+print("✅ Datenbanktabellen wurden erfolgreich neu erstellt.")
