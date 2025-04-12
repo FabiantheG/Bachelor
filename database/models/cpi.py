@@ -1,4 +1,5 @@
 from sqlalchemy import Column, Integer, String, Float, Date, ForeignKey
+from sqlalchemy.orm import relationship
 from .base import Base
 
 class CPI_Rates(Base):
@@ -11,9 +12,21 @@ class CPI_Ref(Base):
     provider_id = Column(Integer, ForeignKey('PROVIDER.provider_id'),comment='provider id')
     currency = Column(String(3), ForeignKey('CPI_RATES.currency'),comment='currency code')
 
+    indicator = relationship(
+        "Economic_Indicator",
+        primaryjoin="CPI_Ref.series_id == Economic_Indicator.series_id",
+        uselist=False,
+        viewonly=True
+    )
+
 
 class CPI_TS(Base):
     __tablename__ = "CPI_TS"
     date = Column(Date, primary_key=True,comment='date of the CPI')
     rate = Column(Float,comment='rate of the CPI')
     series_id = Column(Integer, ForeignKey('CPI_REF.series_id'), primary_key=True)
+
+
+
+
+
