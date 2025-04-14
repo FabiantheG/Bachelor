@@ -1,7 +1,7 @@
 
-from models.asset import Asset, Asset_Ref, Asset_TS
-from models.provider import Provider
-from session import session
+from database.models.asset import Asset, Asset_Ref, Asset_TS
+from database.models.provider import Provider
+from database.session import session
 import pandas as pd
 
 
@@ -19,7 +19,7 @@ def csv_msci_bond_format(bond_label: str) -> pd.DataFrame:
     ---------
     pd.DataFrame mit zwei Spalten: ['Date', bond_label]
     """
-    path = '/Users/lukas/Documents/Bachelor/database/csv_file/msci_govt_10y_19991231_20250331_daily.csv.csv'
+    path = 'database/csv_file/msci_govt_10y_19991231_20250331_daily.csv.csv'
     msci_bond = pd.read_csv(path, sep=',')
 
     # Spaltennamen kürzen
@@ -121,7 +121,7 @@ def insert_full_asset(provider_name: str, asset_ticker: str, currency: str, df: 
     print("Asset import completed.")
 
 
-def insert_all_msci_assets(provider_name: str):
+def insert_all_msci_bonds(provider_name: str):
     """
     Lädt und speichert alle MSCI-Zeitreihen inklusive zugehöriger Währungen
     in die Asset-Datenbankstruktur (ASSET, ASSET_REF, ASSET_TS).
@@ -156,7 +156,7 @@ def insert_all_msci_assets(provider_name: str):
             print(f"Error while processing {index_name}: {e}")
 
 
-insert_all_msci_assets(provider_name="bloomberg")
+#insert_all_msci_bonds(provider_name="bloomberg")
 
 
 

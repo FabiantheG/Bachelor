@@ -1,7 +1,6 @@
 
-from models.provider import Provider
-from models.interest_rate import Interest_Rate, IR_Ref, IR_TS
-from session import session
+from database.models.provider import Provider
+from database.session import session
 import pandas as pd
 
 
@@ -25,7 +24,7 @@ def csv_deposit_format(currency):
         A DataFrame with two columns: 'Date' and the specified currency.
         Dates are in string format and may be converted to datetime if needed.
     """
-    path = '/Users/lukas/Documents/Bachelor/database/csv_file/1m_deposit_rates_ds_20101231_202503031_daily.csv'
+    path = 'database/csv_file/1m_deposit_rates_ds_20101231_202503031_daily.csv'
     m1_deposit_data = pd.read_csv(path, skiprows=2, header=None, sep=';',
                            names=["Date", 'CAD', 'JPY', 'EUR', 'USD', 'AUD', 'NOK', 'SEK', 'NZD', 'CHF', 'GBP'])
     depost_rates = m1_deposit_data[['Date',currency]]
@@ -153,7 +152,7 @@ def insert_all_deposit_rates(provider_name: str, duration: str = "1M"):
             print(f"Error processing {currency}: {e}")
 
 # Aufruf der Funktion
-insert_all_deposit_rates(provider_name="bloomberg", duration="1M")
+#insert_all_deposit_rates(provider_name="bloomberg", duration="1M")
 
 
 

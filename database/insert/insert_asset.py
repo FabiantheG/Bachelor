@@ -1,7 +1,7 @@
 
-from models.asset import Asset, Asset_Ref, Asset_TS
-from models.provider import Provider
-from session import session
+from database.models.asset import Asset, Asset_Ref, Asset_TS
+from database.models.provider import Provider
+from database.session import session
 import pandas as pd
 
 
@@ -24,7 +24,7 @@ def csv_msci_format(index_name: str):
         A DataFrame with two columns: 'Date' and the specified index.
         Dates are in string format and may be converted to datetime if needed.
     """
-    path = '/Users/lukas/Documents/Bachelor/database/csv_file/msci_eq_idx_19991231_20250331_daily.csv.csv'
+    path = 'database/csv_file/msci_eq_idx_19991231_20250331_daily.csv.csv'
     msci_eq_index = pd.read_csv(
         path,
         sep=',',
@@ -156,5 +156,5 @@ def insert_all_msci_assets(provider_name: str):
 
 
 
-insert_all_msci_assets(provider_name="bloomberg")
+#insert_all_msci_assets(provider_name="bloomberg")
 

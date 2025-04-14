@@ -1,5 +1,7 @@
-from models.provider import Provider
-from session import session
+from database.models.provider import Provider
+from database.session import session
+
+
 
 def insert_new_provider(name: str) -> Provider:
     """
@@ -28,6 +30,6 @@ def insert_new_provider(name: str) -> Provider:
             return provider
 
 
-insert_new_provider('bloomberg')
+#insert_new_provider('bloomberg2322')
 
 

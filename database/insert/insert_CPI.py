@@ -1,7 +1,5 @@
-from models.provider import Provider
-from models.cpi import CPI_Rates, CPI_Ref, CPI_TS
-from models.economic_indicator import Economic_Indicator
-from session import session
+from database.models.provider import Provider
+from database.session import session
 import pandas as pd
 
 
@@ -24,7 +22,7 @@ def csv_cpi_format(currency):
         A DataFrame with two columns: 'Date' and the specified currency.
         Dates are still in string format and may require conversion to datetime.
     """
-    path = '/Users/lukas/Documents/Bachelor/database/csv_file/cpi_ds_20101231_20250331_monthly.csv'
+    path = 'database/csv_file/cpi_ds_20101231_20250331_monthly.csv'
     cpi_data = pd.read_csv(path, skiprows=2, header=None, sep=';',
                            names=["Date", "JPY", "USD", "CHF", "NOK", "SEK", "CAD", "NZD", "AUD", "EUR", "GBP"])
     cpi = cpi_data[['Date',currency]]
@@ -143,7 +141,7 @@ def insert_all_cpi_currencies(provider_name: str):
         except Exception as e:
             print(f"Error processing {currency}: {e}")
 
-insert_all_cpi_currencies(provider_name='bloomberg')
+#insert_all_cpi_currencies(provider_name='bloomberg')
 
 
 
