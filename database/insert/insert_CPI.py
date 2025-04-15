@@ -1,4 +1,5 @@
-from database.models.provider import Provider
+from database.models import *
+from database.models import CPI_Rates
 from database.session import session
 import pandas as pd
 
@@ -141,7 +142,7 @@ def insert_all_cpi_currencies(provider_name: str):
         except Exception as e:
             print(f"Error processing {currency}: {e}")
 
-#insert_all_cpi_currencies(provider_name='bloomberg')
+
 
 
 

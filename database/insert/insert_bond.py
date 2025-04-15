@@ -1,6 +1,5 @@
-
-from database.models.asset import Asset, Asset_Ref, Asset_TS
-from database.models.provider import Provider
+from database.models import *
+from database.models import Asset
 from database.session import session
 import pandas as pd
 

@@ -1,9 +1,8 @@
 
 
-from models.provider import Provider
-from models.gdp import GDP_Rates, GDP_Ref, GDP_TS
-from models.economic_indicator import Economic_Indicator
-from session import session
+from database.models import *
+from database.models import GDP_Rates
+from database.session import session
 import pandas as pd
 
 
@@ -13,7 +12,7 @@ def csv_gdp_format(country):
     Loads GDP time series data for a specified country from a local CSV file.
     Formats the 'Date' column from YYYY-MM-DD to DD.MM.YYYY.
     """
-    path = '/Users/lukas/Documents/Bachelor/database/csv_file/gdp_const2015USD_worldbank_1974_2023_annual.csv'
+    path = 'database/csv_file/gdp_const2015USD_worldbank_1974_2023_annual.csv'
     gdp_data = pd.read_csv(path, sep=',')
 
     # Rename first column to 'Date'
@@ -126,5 +125,5 @@ def insert_all_gdp():
         except Exception as e:
             print(f"Error processing {country}: {e}")
 
-#insert_all_gdp()
+
 

@@ -1,11 +1,6 @@
-from sqlalchemy import Column, Integer, String, Float, Date, ForeignKey
-from .base import Base
+from sqlalchemy import Column, Integer, String, Float, ForeignKey
+from database.models.base import Base
 
-class  Portfolio(Base):
-    __tablename__ = "PORTFOLIO"
-    portfolio_id = Column(Integer, primary_key=True)
-    name = Column(String)
-    investor_cur = Column(String(3))
 
 class portfolio_asset_connection(Base):
     __tablename__ = "PORTFOLIO_ASSET_CONNECTION"

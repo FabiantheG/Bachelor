@@ -1,9 +1,47 @@
+
+
+# Interest rate
+from database.models.interest_rate.ir_ref import *
+from database.models.interest_rate.interest_rate import *
+from database.models.interest_rate.ir_ts import *
+
+# Hedging
+from database.models.hedging.simulation_ts import *
+from database.models.hedging.hedging_strategy import *
+from database.models.hedging.simulation_ref import *
+
+# Portfolio
+from database.models.portfolio.portfolio_asset_connection import *
+from database.models.portfolio.portfolio import *
+
+# Provider
 from database.models.provider import Provider
-from database.models.interest_rate import Interest_Rate, IR_Ref, IR_TS
-from database.models.fx import FX_Rates, FX_Ref, FX_TS
-from database.models.cpi import CPI_Rates, CPI_Ref, CPI_TS
-from database.models.hedging import Hedging_Strategy, Simulation_Ref, Simulation_TS
-from database.models.asset import Asset, Asset_Ref, Asset_TS
-from database.models.portfolio import Portfolio, portfolio_asset_connection
+
+# Economic Indicator
 from database.models.economic_indicator import Economic_Indicator
-from database.models.gdp import GDP_Rates, GDP_Ref, GDP_TS
+
+# GDP
+from database.models.gdp.gdp_rates import *
+from database.models.gdp.gdp_ref import *
+from database.models.gdp.gdp_ts import *
+
+# interest_rate
+from database.models.interest_rate.ir_ref import *
+from database.models.interest_rate.interest_rate import *
+from database.models.interest_rate.ir_ts import *
+
+# Asset
+from database.models.asset.asset import *
+from database.models.asset.asset_ref import *
+from database.models.asset.asset_ts import *
+
+# CPI
+from database.models.cpi.cpi_ts import *
+from database.models.cpi.cpi_rates import *
+from database.models.cpi.cpi_ref import *
+
+# FX
+from database.models.fx.fx_ref import *
+from database.models.fx.fx_rates import *
+from database.models.fx.fx_ts import *
+

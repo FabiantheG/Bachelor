@@ -1,7 +1,6 @@
-
-from models.provider import Provider
-from models.fx import FX_Rates, FX_Ref, FX_TS
-from session import session
+from database.models import *
+from database.models import FX_Rates
+from database.session import session
 import pandas as pd
 
 
@@ -10,7 +9,7 @@ import pandas as pd
 
 def save_spot_price_csv():
     # CSV-Datei einlesen
-    csv_path = '/Users/lukas/Documents/Bachelor/database/csv_file/fx_fwd_pts_vs_usd_ds_19991231_20250331_daily.csv'
+    csv_path = 'database/csv_file/fx_fwd_pts_vs_usd_ds_19991231_20250331_daily.csv'
     df = pd.read_csv(csv_path, sep=';', skiprows=1)
 
     # Extrahiere die erste Spalte (angenommen, diese enthält das Datum oder den Code)
@@ -32,7 +31,7 @@ def save_spot_price_csv():
 
 
     # Ausgabe-Pfad definieren
-    output_path = '/Users/lukas/Documents/Bachelor/database/csv_file/spot_price.csv'
+    output_path = 'database/csv_file/spot_price.csv'
 
     # Speichern des finalen DataFrames als CSV
     df_final.to_csv(output_path, sep=';', index=False)
@@ -55,7 +54,7 @@ def csv_spot_price_format(spot_label: str) -> pd.DataFrame:
     --------
     pd.DataFrame with two columns: ['Date', spot_label]
     """
-    path = '/Users/lukas/Documents/Bachelor/database/csv_file/spot_price.csv'
+    path = 'database/csv_file/spot_price.csv'
     spot_price_df = pd.read_csv(path, sep=';')
 
     # Ensure that the 'Date' column exists
@@ -191,7 +190,7 @@ def insert_all_spot_data():
         insert_full_fx(provider_name=provider_name, duration='Spot', df=df)
         print(f"Finished inserting data for {spot_label} provided by {provider_name}.\n")
 
-insert_all_spot_data()
+#insert_all_spot_data()
 
 
 # ----------- Forward Points ---------------
@@ -199,7 +198,7 @@ insert_all_spot_data()
 
 def save_forward_points_subset():
     # CSV-Datei einlesen
-    csv_path = '/Users/lukas/Documents/Bachelor/database/csv_file/fx_fwd_pts_vs_usd_ds_19991231_20250331_daily.csv'
+    csv_path = 'database/csv_file/fx_fwd_pts_vs_usd_ds_19991231_20250331_daily.csv'
     df = pd.read_csv(csv_path, sep=';', skiprows=1)
 
     # Wähle die ersten 37 Spalten aus (Index 0 bis 36)
@@ -226,7 +225,7 @@ def save_forward_points_subset():
     df_subset.columns = names
 
     # Definiere den Ausgabe-Pfad
-    output_path = '/Users/lukas/Documents/Bachelor/database/csv_file/forward_points.csv'
+    output_path = 'database/csv_file/forward_points.csv'
 
     # Speichere das DataFrame als neues CSV
     df_subset.to_csv(output_path, sep=';', index=False)
@@ -250,7 +249,7 @@ def csv_forward_points_format(forward_label: str):
     pd.DataFrame
         A DataFrame with two columns: ['Date', forward_label] with 'Date' converted to datetime.
     """
-    file_path = '/Users/lukas/Documents/Bachelor/database/csv_file/forward_points.csv'
+    file_path = 'database/csv_file/forward_points.csv'
 
     # Read the CSV file
     forward_points_df = pd.read_csv(file_path, sep=';')
@@ -400,4 +399,4 @@ def insert_all_fx_forward():
         insert_fx_forward(provider_name=provider_name, df=df)
         print(f"Finished inserting data for {forward_label}.\n")
 
-insert_all_fx_forward()
+#insert_all_fx_forward()

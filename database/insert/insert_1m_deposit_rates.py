@@ -1,5 +1,6 @@
 
-from database.models.provider import Provider
+from database.models import *
+from database.models import Interest_Rate
 from database.session import session
 import pandas as pd
 
@@ -151,8 +152,7 @@ def insert_all_deposit_rates(provider_name: str, duration: str = "1M"):
         except Exception as e:
             print(f"Error processing {currency}: {e}")
 
-# Aufruf der Funktion
-#insert_all_deposit_rates(provider_name="bloomberg", duration="1M")
+
 
 
 
