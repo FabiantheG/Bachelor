@@ -1,5 +1,3 @@
-
-
 # Interest rate
 from database.models.interest_rate.ir_ref import *
 from database.models.interest_rate.interest_rate import *
