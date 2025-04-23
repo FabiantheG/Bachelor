@@ -1,9 +1,9 @@
-from database.models.provider import Provider
+from database.models.provider import PROVIDER
 from database.session import session
 
 
 
-def insert_new_provider(name: str) -> Provider:
+def insert_new_provider(name: str) -> PROVIDER:
     """
     Inserts a new provider into the PROVIDER table if it does not already exist.
 
@@ -19,9 +19,9 @@ def insert_new_provider(name: str) -> Provider:
     """
     with session:
         with session.begin():
-            provider = session.query(Provider).filter_by(name=name).first()
+            provider = session.query(PROVIDER).filter_by(name=name).first()
             if not provider:
-                provider = Provider(name=name)
+                provider = PROVIDER(name=name)
                 session.add(provider)
                 session.flush()  # ensures provider_id is available immediately
                 print(f"New provider '{name}' added with ID {provider.provider_id}.")

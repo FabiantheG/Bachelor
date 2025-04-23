@@ -13,10 +13,10 @@ from database.models.portfolio.portfolio_asset_connection import *
 from database.models.portfolio.portfolio import *
 
 # Provider
-from database.models.provider import Provider
+from database.models.provider import PROVIDER
 
 # Economic Indicator
-from database.models.economic_indicator import Economic_Indicator
+from database.models.economic_indicator import ECONOMIC_INDICATOR
 
 # GDP
 from database.models.gdp.gdp_rates import *

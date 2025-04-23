@@ -1,6 +1,6 @@
 
 from database.models import *
-from database.models import Interest_Rate
+from database.models import INTEREST_RATE
 from database.session import session
 import pandas as pd
 
@@ -58,9 +58,9 @@ def insert_full_interest_rate(provider_name: str, currency: str, df: pd.DataFram
     with session:
         with session.begin():
             # Step 1: Provider
-            provider = session.query(Provider).filter_by(name=provider_name).first()
+            provider = session.query(PROVIDER).filter_by(name=provider_name).first()
             if not provider:
-                provider = Provider(name=provider_name)
+                provider = PROVIDER(name=provider_name)
                 session.add(provider)
                 session.flush()
                 print(f"Provider '{provider_name}' created with ID {provider.provider_id}")
@@ -68,9 +68,9 @@ def insert_full_interest_rate(provider_name: str, currency: str, df: pd.DataFram
                 print(f"Provider '{provider_name}' already exists (ID {provider.provider_id})")
 
             # Step 2: INTEREST_RATE entry (currency + duration)
-            ir = session.query(Interest_Rate).filter_by(currency=currency, duration=duration).first()
+            ir = session.query(INTEREST_RATE).filter_by(currency=currency, duration=duration).first()
             if not ir:
-                ir = Interest_Rate(currency=currency, duration=duration)
+                ir = INTEREST_RATE(currency=currency, duration=duration)
                 session.add(ir)
                 session.flush()
                 print(f"INTEREST_RATE created for {currency}, duration '{duration}'")
@@ -78,12 +78,12 @@ def insert_full_interest_rate(provider_name: str, currency: str, df: pd.DataFram
                 print(f"INTEREST_RATE already exists for {currency}, duration '{duration}' (ID {ir.ir_id})")
 
             # Step 3: IR_REF (provider + ir_id)
-            ir_ref = session.query(IR_Ref).filter_by(
+            ir_ref = session.query(IR_REF).filter_by(
                 provider_id=provider.provider_id,
                 ir_id=ir.ir_id
             ).first()
             if not ir_ref:
-                ir_ref = IR_Ref(provider_id=provider.provider_id, ir_id=ir.ir_id)
+                ir_ref = IR_REF(provider_id=provider.provider_id, ir_id=ir.ir_id)
                 session.add(ir_ref)
                 session.flush()
                 print(f"IR_REF created (series_id: {ir_ref.series_id})")
