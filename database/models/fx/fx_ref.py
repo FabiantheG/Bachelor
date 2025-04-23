@@ -3,7 +3,7 @@ from sqlalchemy import Column, Integer, ForeignKey, String, ForeignKeyConstraint
 from database.models.base import Base
 
 
-class FX_Ref(Base):
+class FX_REF(Base):
     __tablename__ = "FX_REF"
     series_id = Column(Integer, primary_key=True)
     provider_id = Column(Integer, ForeignKey('PROVIDER.provider_id'))

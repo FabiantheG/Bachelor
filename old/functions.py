@@ -112,6 +112,10 @@ def hedge(fx_dataframe, asset_dataframe, quote, base, hedge_ratio=1, plot=False)
         df['forward'] = df['spot'] - df['px'] / 100
     else:
         df['forward'] = df['spot'] + df['px'] / 10000
+
+
+
+
     df['unhedgedCHF'] = df['Close'] * df['spot']
 
     df['unhedgedCHF'] = df['Close'] * df['spot']

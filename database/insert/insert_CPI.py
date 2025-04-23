@@ -1,5 +1,5 @@
 from database.models import *
-from database.models import CPI_Rates
+from database.models import CPI_RATES
 from database.session import session
 import pandas as pd
 
@@ -40,9 +40,9 @@ def insert_full_cpi(provider_name: str, currency: str, df: pd.DataFrame):
     with session:
         with session.begin():
             # Step 1: Provider
-            provider = session.query(Provider).filter_by(name=provider_name).first()
+            provider = session.query(PROVIDER).filter_by(name=provider_name).first()
             if not provider:
-                provider = Provider(name=provider_name)
+                provider = PROVIDER(name=provider_name)
                 session.add(provider)
                 session.flush()
                 print(f"Provider '{provider_name}' created (ID: {provider.provider_id})")
@@ -50,25 +50,25 @@ def insert_full_cpi(provider_name: str, currency: str, df: pd.DataFrame):
                 print(f"Provider '{provider_name}' already exists (ID: {provider.provider_id})")
 
             # Step 2: Currency in CPI_RATES
-            if not session.query(CPI_Rates).filter_by(currency=currency).first():
-                session.add(CPI_Rates(currency=currency))
+            if not session.query(CPI_RATES).filter_by(currency=currency).first():
+                session.add(CPI_RATES(currency=currency))
                 print(f"Currency '{currency}' added to CPI_RATES.")
             else:
                 print(f"Currency '{currency}' already exists in CPI_RATES.")
 
             # Step 3: CPI_REF + Economic_Indicator
-            cpi_ref = session.query(CPI_Ref).filter_by(
+            cpi_ref = session.query(CPI_REF).filter_by(
                 provider_id=provider.provider_id,
                 currency=currency
             ).first()
 
             if not cpi_ref:
-                cpi_ref = CPI_Ref(provider_id=provider.provider_id, currency=currency)
+                cpi_ref = CPI_REF(provider_id=provider.provider_id, currency=currency)
                 session.add(cpi_ref)
                 session.flush()
                 print(f"CPI_REF created (series_id: {cpi_ref.series_id})")
 
-                ei = Economic_Indicator(series_id=cpi_ref.series_id, indicator_type='CPI')
+                ei = ECONOMIC_INDICATOR(series_id=cpi_ref.series_id, indicator_type='CPI')
                 session.add(ei)
                 print(f"Economic_Indicator entry created for CPI_REF (series_id: {cpi_ref.series_id})")
             else:

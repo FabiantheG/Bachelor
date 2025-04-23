@@ -1,8 +1,8 @@
 from database.models import *
-from database.models import FX_Rates
+from database.models import FX_RATES
 from database.session import session
 import pandas as pd
-
+from database.functions import *
 
 
 # -------- FX Spot -----------
@@ -98,14 +98,14 @@ def insert_full_fx(provider_name: str, duration: str, df: pd.DataFrame):
         raise ValueError("DataFrame must contain exactly one 'Spot_BASE_TO_QUOTE' column.")
 
     spot_label = spot_cols[0]
-    _, base_cur, _, quote_cur = spot_label.split('_')
+    _, quote_cur, _, base_cur = spot_label.split('_')
 
     with session:
         with session.begin():
             # Step 1: Provider
-            provider = session.query(Provider).filter_by(name=provider_name).first()
+            provider = session.query(PROVIDER).filter_by(name=provider_name).first()
             if not provider:
-                provider = Provider(name=provider_name)
+                provider = PROVIDER(name=provider_name)
                 session.add(provider)
                 session.flush()
                 print(f"Provider '{provider_name}' created with ID {provider.provider_id}")
@@ -113,21 +113,21 @@ def insert_full_fx(provider_name: str, duration: str, df: pd.DataFrame):
                 print(f"Provider '{provider_name}' already exists (ID {provider.provider_id})")
 
             # Step 2: FX_RATES
-            if not session.query(FX_Rates).filter_by(base_cur=base_cur, quote_cur=quote_cur, duration=duration).first():
-                session.add(FX_Rates(base_cur=base_cur, quote_cur=quote_cur, duration=duration))
+            if not session.query(FX_RATES).filter_by(base_cur=base_cur, quote_cur=quote_cur, duration=duration).first():
+                session.add(FX_RATES(base_cur=base_cur, quote_cur=quote_cur, duration=duration))
                 print(f"FX currency pair '{base_cur}/{quote_cur}' with duration '{duration}' inserted into FX_RATES.")
             else:
                 print(f"FX currency pair '{base_cur}/{quote_cur}' with duration '{duration}' already exists in FX_RATES.")
 
             # Step 3: FX_REF
-            fx_ref = session.query(FX_Ref).filter_by(
+            fx_ref = session.query(FX_REF).filter_by(
                 provider_id=provider.provider_id,
                 base_cur=base_cur,
                 quote_cur=quote_cur,
                 duration=duration
             ).first()
             if not fx_ref:
-                fx_ref = FX_Ref(provider_id=provider.provider_id, base_cur=base_cur, quote_cur=quote_cur, duration=duration)
+                fx_ref = FX_REF(provider_id=provider.provider_id, base_cur=base_cur, quote_cur=quote_cur, duration=duration)
                 session.add(fx_ref)
                 session.flush()
                 print(f"FX_REF created (series_id: {fx_ref.series_id})")
@@ -305,16 +305,16 @@ def insert_fx_forward(provider_name: str, df: pd.DataFrame):
     tokens = forward_label.split('_')
     if len(tokens) < 5 or tokens[1] != "TO":
         raise ValueError(f"Forward points column name '{forward_label}' does not match the expected format.")
-    base_cur = tokens[0]
-    quote_cur = tokens[2]
+    quote_cur = tokens[0]
+    base_cur = tokens[2]
     duration = tokens[3]  # Extracting duration dynamically
 
     with session:
         with session.begin():
             # Step 1: Provider
-            provider = session.query(Provider).filter_by(name=provider_name).first()
+            provider = session.query(PROVIDER).filter_by(name=provider_name).first()
             if not provider:
-                provider = Provider(name=provider_name)
+                provider = PROVIDER(name=provider_name)
                 session.add(provider)
                 session.flush()
                 print(f"Provider '{provider_name}' created with ID {provider.provider_id}")
@@ -322,22 +322,22 @@ def insert_fx_forward(provider_name: str, df: pd.DataFrame):
                 print(f"Provider '{provider_name}' already exists (ID {provider.provider_id})")
 
             # Step 2: FX_Rates
-            fx_rate_exists = session.query(FX_Rates).filter_by(base_cur=base_cur, quote_cur=quote_cur, duration=duration).first()
+            fx_rate_exists = session.query(FX_RATES).filter_by(base_cur=base_cur, quote_cur=quote_cur, duration=duration).first()
             if not fx_rate_exists:
-                session.add(FX_Rates(base_cur=base_cur, quote_cur=quote_cur, duration=duration))
+                session.add(FX_RATES(base_cur=base_cur, quote_cur=quote_cur, duration=duration))
                 print(f"FX currency pair '{base_cur}/{quote_cur}' with duration '{duration}' inserted into FX_Rates.")
             else:
                 print(f"FX currency pair '{base_cur}/{quote_cur}' with duration '{duration}' already exists in FX_Rates.")
 
             # Step 3: FX_REF
-            fx_ref = session.query(FX_Ref).filter_by(
+            fx_ref = session.query(FX_REF).filter_by(
                 provider_id=provider.provider_id,
                 base_cur=base_cur,
                 quote_cur=quote_cur,
                 duration=duration
             ).first()
             if not fx_ref:
-                fx_ref = FX_Ref(provider_id=provider.provider_id, base_cur=base_cur, quote_cur=quote_cur, duration=duration)
+                fx_ref = FX_REF(provider_id=provider.provider_id, base_cur=base_cur, quote_cur=quote_cur, duration=duration)
                 session.add(fx_ref)
                 session.flush()
                 print(f"FX_REF created (series_id: {fx_ref.series_id})")
@@ -349,8 +349,31 @@ def insert_fx_forward(provider_name: str, df: pd.DataFrame):
                 raise ValueError("DataFrame must contain a 'Date' column.")
 
             # Step 5: Convert 'Date' column to datetime.date using the provided format
-            df["Date"] = pd.to_datetime(df["Date"], format="%d.%m.%Y", errors="coerce").dt.date
+            df["Date"] = pd.to_datetime(df["Date"], format="%d.%m.%Y", errors="coerce")
             df = df[df["Date"].notna() & df[forward_label].notna()]
+
+            df2 = get_fx(base_cur,quote_cur,'Spot')
+            df2 = df2.reset_index()
+            df2.rename(columns={'date': 'Date'}, inplace=True)
+
+
+
+
+
+            df = df.merge(df2[['Date', 'rate']], on='Date', how='inner')  # oder 'left' je nach Use-Case
+            # calculate the forward price
+            if base_cur == 'JPY' or quote_cur == 'JPY':
+                if base_cur == 'EUR' or quote_cur == 'EUR':
+                    df.iloc[:, 1] = df['rate'] - df.iloc[:, 1] / 1000
+                else:
+                    df.iloc[:, 1] = df['rate'] - df.iloc[:, 1] / 100
+            else:
+                df.iloc[:, 1] = df['rate'] + df.iloc[:, 1] / 10000
+
+
+
+
+
 
             # Step 6: Get existing dates from DB for the series
             existing_dates = session.query(FX_TS.date).filter_by(series_id=fx_ref.series_id).all()
@@ -361,6 +384,9 @@ def insert_fx_forward(provider_name: str, df: pd.DataFrame):
                 {"date": row["Date"], "rate": row[forward_label], "series_id": fx_ref.series_id}
                 for _, row in df.iterrows() if row["Date"] not in existing_dates_set
             ]
+
+
+
 
             # Step 8: Insert new records if available
             if new_records:
@@ -393,7 +419,7 @@ def insert_all_fx_forward():
     provider_name = 'bloomberg'
 
     # Iterate over all columns except the first one ('Date').
-    for forward_label in names[1:]:
+    for forward_label in names[0:]:
         print(f"Inserting data for {forward_label}...")
         df = csv_forward_points_format(forward_label)
         insert_fx_forward(provider_name=provider_name, df=df)

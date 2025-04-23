@@ -12,15 +12,15 @@ def insert_yahoo_db(ticker, start, end):
 
     with session:
         with session.begin():
-            existing_asset = session.query(Asset).filter_by(asset_ticker=ticker).first()
+            existing_asset = session.query(ASSET).filter_by(asset_ticker=ticker).first()
 
             if not existing_asset:
                 yfinance = yf.Ticker(ticker)
                 currency = yfinance.info.get('currency')
-                asset =  Asset(currency = currency , asset_ticker=ticker)
+                asset =  ASSET(currency = currency, asset_ticker=ticker)
                 session.add(asset)
 
-            ref = Asset_Ref(provider_id=provider, asset_ticker=ticker)
+            ref = ASSET_REF(provider_id=provider, asset_ticker=ticker)
             session.add(ref)
             session.flush()  # sorgt dafür, dass ref.series_id generiert und verfügbar wird
 
@@ -35,7 +35,7 @@ def insert_yahoo_db(ticker, start, end):
                 })
 
             # Führe den Bulk Insert in die Tabelle ASSET_TS aus
-            session.bulk_insert_mappings(Asset_TS, asset_ts_mappings)
+            session.bulk_insert_mappings(ASSET_TS, asset_ts_mappings)
 
 def insert_fx(path,provider,duration):
     data = pd.read_csv(path) # get the data from the csv file
@@ -62,21 +62,21 @@ def insert_fx(path,provider,duration):
 
     with session:
         with session.begin():
-            existing_fx = session.query(FX_Rates).filter(
+            existing_fx = session.query(FX_RATES).filter(
                 and_(
-                    FX_Rates.base_cur == base,
-                    FX_Rates.quote_cur == quote,
-                    FX_Rates.duration == duration
+                    FX_RATES.base_cur == base,
+                    FX_RATES.quote_cur == quote,
+                    FX_RATES.duration == duration
                 )
             ).first()
 
             if not existing_fx:
 
 
-                fx =  FX_Rates(base_cur = base , quote_cur=quote,duration=duration)
+                fx =  FX_RATES(base_cur = base, quote_cur=quote, duration=duration)
                 session.add(fx)
 
-            ref = FX_Ref(provider_id=provider, base_cur = base , quote_cur=quote,duration=duration)
+            ref = FX_REF(provider_id=provider, base_cur = base, quote_cur=quote, duration=duration)
             session.add(ref)
             session.flush()  # sorgt dafür, dass ref.series_id generiert und verfügbar wird
 
@@ -116,21 +116,21 @@ def insert_fx(path,provider,duration):
 
     with session:
         with session.begin():
-            existing_fx = session.query(FX_Rates).filter(
+            existing_fx = session.query(FX_RATES).filter(
                 and_(
-                    FX_Rates.base_cur == base,
-                    FX_Rates.quote_cur == quote,
-                    FX_Rates.duration == duration
+                    FX_RATES.base_cur == base,
+                    FX_RATES.quote_cur == quote,
+                    FX_RATES.duration == duration
                 )
             ).first()
 
             if not existing_fx:
 
 
-                fx =  FX_Rates(base_cur = base , quote_cur=quote,duration=duration)
+                fx =  FX_RATES(base_cur = base, quote_cur=quote, duration=duration)
                 session.add(fx)
 
-            ref = FX_Ref(provider_id=provider, base_cur = base , quote_cur=quote,duration=duration)
+            ref = FX_REF(provider_id=provider, base_cur = base, quote_cur=quote, duration=duration)
             session.add(ref)
             session.flush()  # sorgt dafür, dass ref.series_id generiert und verfügbar wird
 

@@ -2,7 +2,7 @@ from sqlalchemy import Column, Integer, Float, Date, ForeignKey
 from database.models.base import Base
 
 
-class Asset_TS(Base):
+class ASSET_TS(Base):
     __tablename__ = "ASSET_TS"
     date = Column(Date, primary_key=True)
     close = Column(Float)

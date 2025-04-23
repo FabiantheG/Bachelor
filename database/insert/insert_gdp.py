@@ -1,7 +1,7 @@
 
 
 from database.models import *
-from database.models import GDP_Rates
+from database.models import GDP_RATES
 from database.session import session
 import pandas as pd
 
@@ -41,9 +41,9 @@ def insert_full_gdp(provider_name: str, country: str, df: pd.DataFrame):
     with session:
         with session.begin():
             # Step 1: Provider
-            provider = session.query(Provider).filter_by(name=provider_name).first()
+            provider = session.query(PROVIDER).filter_by(name=provider_name).first()
             if not provider:
-                provider = Provider(name=provider_name)
+                provider = PROVIDER(name=provider_name)
                 session.add(provider)
                 session.flush()
                 print(f"Provider '{provider_name}' created (ID: {provider.provider_id})")
@@ -51,25 +51,25 @@ def insert_full_gdp(provider_name: str, country: str, df: pd.DataFrame):
                 print(f"Provider '{provider_name}' already exists (ID: {provider.provider_id})")
 
             # Step 2: GDP_RATES
-            if not session.query(GDP_Rates).filter_by(country=country).first():
-                session.add(GDP_Rates(country=country))
+            if not session.query(GDP_RATES).filter_by(country=country).first():
+                session.add(GDP_RATES(country=country))
                 print(f"Country '{country}' added to GDP_RATES.")
             else:
                 print(f"Country '{country}' already exists in GDP_RATES.")
 
             # Step 3: GDP_REF + Economic_Indicator
-            gdp_ref = session.query(GDP_Ref).filter_by(
+            gdp_ref = session.query(GDP_REF).filter_by(
                 provider_id=provider.provider_id,
                 country=country
             ).first()
 
             if not gdp_ref:
-                gdp_ref = GDP_Ref(provider_id=provider.provider_id, country=country)
+                gdp_ref = GDP_REF(provider_id=provider.provider_id, country=country)
                 session.add(gdp_ref)
                 session.flush()
                 print(f"GDP_REF created (series_id: {gdp_ref.series_id})")
 
-                ei = Economic_Indicator(series_id=gdp_ref.series_id, indicator_type='GDP')
+                ei = ECONOMIC_INDICATOR(series_id=gdp_ref.series_id, indicator_type='GDP')
                 session.add(ei)
                 print(f"Economic_Indicator entry created for GDP_REF (series_id: {gdp_ref.series_id})")
             else:

@@ -3,7 +3,7 @@ from sqlalchemy import Column, Integer, String
 from database.models.base import Base
 
 
-class  Portfolio(Base):
+class  PORTFOLIO(Base):
     __tablename__ = "PORTFOLIO"
     portfolio_id = Column(Integer, primary_key=True)
     name = Column(String)

@@ -1,6 +1,6 @@
 
 from database.models import *
-from database.models import Asset
+from database.models import ASSET
 from database.session import session
 import pandas as pd
 
@@ -53,9 +53,9 @@ def insert_full_asset(provider_name: str, asset_ticker: str, currency: str, df: 
     with session:
         with session.begin():
             # 1. Provider
-            provider = session.query(Provider).filter_by(name=provider_name).first()
+            provider = session.query(PROVIDER).filter_by(name=provider_name).first()
             if not provider:
-                provider = Provider(name=provider_name)
+                provider = PROVIDER(name=provider_name)
                 session.add(provider)
                 session.flush()
                 print(f"Created new provider '{provider_name}' (ID {provider.provider_id})")
@@ -63,9 +63,9 @@ def insert_full_asset(provider_name: str, asset_ticker: str, currency: str, df: 
                 print(f"Using existing provider '{provider_name}' (ID {provider.provider_id})")
 
             # 2. Asset
-            asset = session.query(Asset).filter_by(asset_ticker=asset_ticker).first()
+            asset = session.query(ASSET).filter_by(asset_ticker=asset_ticker).first()
             if not asset:
-                asset = Asset(asset_ticker=asset_ticker, currency=currency)
+                asset = ASSET(asset_ticker=asset_ticker, currency=currency)
                 session.add(asset)
                 session.flush()
                 print(f"Inserted new asset '{asset_ticker}'")
@@ -73,12 +73,12 @@ def insert_full_asset(provider_name: str, asset_ticker: str, currency: str, df: 
                 print(f"Asset '{asset_ticker}' already exists")
 
             # 3. Asset_Ref
-            asset_ref = session.query(Asset_Ref).filter_by(
+            asset_ref = session.query(ASSET_REF).filter_by(
                 provider_id=provider.provider_id,
                 asset_ticker=asset_ticker
             ).first()
             if not asset_ref:
-                asset_ref = Asset_Ref(provider_id=provider.provider_id, asset_ticker=asset_ticker)
+                asset_ref = ASSET_REF(provider_id=provider.provider_id, asset_ticker=asset_ticker)
                 session.add(asset_ref)
                 session.flush()
                 print(f"Created asset_ref (series_id: {asset_ref.series_id})")
@@ -96,7 +96,7 @@ def insert_full_asset(provider_name: str, asset_ticker: str, currency: str, df: 
             df = df[df[asset_ticker].notna()]
 
             # 6. Get existing dates
-            existing_dates = session.query(Asset_TS.date).filter_by(series_id=asset_ref.series_id).all()
+            existing_dates = session.query(ASSET_TS.date).filter_by(series_id=asset_ref.series_id).all()
             existing_dates_set = {d[0] for d in existing_dates}
 
             # 7. Prepare new rows
@@ -111,7 +111,7 @@ def insert_full_asset(provider_name: str, asset_ticker: str, currency: str, df: 
 
             # 8. Insert
             if new_rows:
-                session.bulk_insert_mappings(Asset_TS, new_rows)
+                session.bulk_insert_mappings(ASSET_TS, new_rows)
                 print(f"Inserted {len(new_rows)} new records into ASSET_TS.")
             else:
                 print("No new asset time series data to insert.")
