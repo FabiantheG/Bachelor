@@ -32,8 +32,9 @@ investor_cur = 'CHF'
 
 
 
+
 sim_id = insert_simulation(
-    portfolio_name='World',
+    portfolio_name='World_Equal',
     strategy_name='ABC_Hedge',
     unhedged_growth=[0.98, 0.981,0.98, 0.981,0.98, 0.981,0.98, 0.981,0.98, 0.981],
     hedged_growth=[0.93, 0.938,0.98, 0.981,0.98, 0.981,0.98, 0.981,0.98, 0.981])
