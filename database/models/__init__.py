@@ -43,3 +43,8 @@ from database.models.fx.fx_ref import *
 from database.models.fx.fx_rates import *
 from database.models.fx.fx_ts import *
 
+# Factor
+
+from database.models.factor.factor import *
+from database.models.factor.factor_ref import *
+from database.models.factor.factor_ts import *

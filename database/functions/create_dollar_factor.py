@@ -1,6 +1,7 @@
 from database.models import *
 from database.session import session
 from database.functions import *
+import pandas as pd
 
 def create_dollar_factor():
     g10 = ['EUR', 'JPY', 'CHF', 'GBP', 'AUD', 'CAD', 'NZD', 'NOK', 'SEK']
@@ -29,5 +30,6 @@ def create_dollar_factor():
 
     # Compute the dollar factor as the cross-sectional average of FX returns
     dollar_factor = fx_matrix.mean(axis=1).to_frame(name='dollar_factor')
+    dollar_factor = dollar_factor.dropna()
 
     return dollar_factor

@@ -3,7 +3,6 @@ from database.models import CPI_RATES
 from database.session import session
 import pandas as pd
 
-
 def csv_cpi_format(currency):
     """
     Loads CPI time series data for a specified currency from a local CSV file.
@@ -28,7 +27,6 @@ def csv_cpi_format(currency):
                            names=["Date", "JPY", "USD", "CHF", "NOK", "SEK", "CAD", "NZD", "AUD", "EUR", "GBP"])
     cpi = cpi_data[['Date',currency]]
     return cpi
-
 
 def insert_full_cpi(provider_name: str, currency: str, df: pd.DataFrame):
     """
@@ -100,7 +98,6 @@ def insert_full_cpi(provider_name: str, currency: str, df: pd.DataFrame):
 
     print(f"Finished CPI import for {currency}.\n")
 
-
 def insert_all_cpi_currencies(provider_name: str):
     """
     Loads and inserts CPI data for a predefined list of currencies.
@@ -114,9 +111,6 @@ def insert_all_cpi_currencies(provider_name: str):
             insert_full_cpi(provider_name=provider_name, currency=currency, df=cpi_df)
         except Exception as e:
             print(f"Error processing {currency}: {e}")
-
-
-
 
 def insert_all_cpi_currencies(provider_name: str):
     """
