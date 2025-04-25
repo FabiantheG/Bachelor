@@ -1,28 +1,22 @@
-
 from database.models import *
 from database.models import ASSET
 from database.session import session
 import pandas as pd
 
 
-def csv_msci_format(index_name: str):
+def csv_msci_format(index_name: str) -> pd.DataFrame:
     """
-    Loads MSCI equity index data for a specified index name from a local CSV file.
+    Load MSCI equity index data for a specified index from CSV.
 
-    The function reads a prepared CSV file containing daily MSCI equity index values
-    for various regions, extracts the 'Date' column and the column corresponding
-    to the specified index, and returns a DataFrame with these two columns.
+    Reads a local CSV file containing daily MSCI equity index values,
+    extracts the Date column and the column matching the given index_name,
+    and returns a DataFrame with those two columns.
 
-    Parameters:
-    -----------
-    index_name : str
-        The MSCI index name to extract (e.g., 'MSCI USA', 'MSCI Europe').
-
-    Returns:
-    --------
-    pd.DataFrame
-        A DataFrame with two columns: 'Date' and the specified index.
-        Dates are in string format and may be converted to datetime if needed.
+    :param index_name: The MSCI index name to extract (e.g., 'MSCI USA', 'MSCI Europe').
+    :type index_name: str
+    :raises ValueError: If the specified index_name is not found in the CSV file.
+    :return: DataFrame with columns ['Date', index_name].
+    :rtype: pandas.DataFrame
     """
     path = 'database/csv_file/msci_eq_idx_19991231_20250331_daily.csv.csv'
     msci_eq_index = pd.read_csv(
@@ -30,9 +24,11 @@ def csv_msci_format(index_name: str):
         sep=',',
         skiprows=1,
         header=None,
-        names=["Date", "MSCI Australia", "MSCI Canada", "MSCI Europe", "MSCI Japan",
-               "MSCI New Zealand", "MSCI Norway", "MSCI Sweden", "MSCI Switzerland",
-               "MSCI UK", "MSCI USA"]
+        names=[
+            "Date", "MSCI Australia", "MSCI Canada", "MSCI Europe", "MSCI Japan",
+            "MSCI New Zealand", "MSCI Norway", "MSCI Sweden", "MSCI Switzerland",
+            "MSCI UK", "MSCI USA"
+        ]
     )
 
     if index_name not in msci_eq_index.columns:
@@ -42,13 +38,25 @@ def csv_msci_format(index_name: str):
     return msci_data
 
 
-
-def insert_full_asset(provider_name: str, asset_ticker: str, currency: str, df: pd.DataFrame):
+def insert_full_asset(provider_name: str, asset_ticker: str, currency: str, df: pd.DataFrame) -> None:
     """
-    Inserts asset time series data (e.g. MSCI indices) into the database.
+    Insert MSCI equity index time series into the database.
 
-    This version accepts a DataFrame with the original MSCI column name and
-    renames it to match asset_ticker internally before processing.
+    Ensures that the provider, asset, and asset_ref records exist. Renames the
+    DataFrame's series column to asset_ticker, parses 'Date' to datetime.date,
+    filters out missing values, and bulk-inserts only new records into ASSET_TS.
+
+    :param provider_name: Name of the data provider (e.g., 'bloomberg').
+    :type provider_name: str
+    :param asset_ticker: Ticker to assign to this index (e.g., 'MSCI_USA').
+    :type asset_ticker: str
+    :param currency: ISO currency code of the index values (e.g., 'USD').
+    :type currency: str
+    :param df: DataFrame with columns ['Date', <original index column>].
+    :type df: pandas.DataFrame
+    :raises ValueError: If the DataFrame does not contain exactly 'Date' and one data column.
+    :return: None
+    :rtype: None
     """
     with session:
         with session.begin():
@@ -83,33 +91,29 @@ def insert_full_asset(provider_name: str, asset_ticker: str, currency: str, df: 
                 session.flush()
                 print(f"Created asset_ref (series_id: {asset_ref.series_id})")
             else:
-                print(f"Asset_Ref already exists (series_id: {asset_ref.series_id})")
+                print(f"Asset_ref already exists (series_id: {asset_ref.series_id})")
 
-            # 4. Rename MSCI column to asset_ticker
+            # 4. Rename DataFrame column to asset_ticker
             value_column = [col for col in df.columns if col != "Date"][0]
             if value_column != asset_ticker:
                 df = df.rename(columns={value_column: asset_ticker})
 
             # 5. Clean DataFrame
             df["Date"] = pd.to_datetime(df["Date"], errors="coerce").dt.date
-            df = df[df["Date"].notna()]
-            df = df[df[asset_ticker].notna()]
+            df = df[df["Date"].notna() & df[asset_ticker].notna()]
 
             # 6. Get existing dates
             existing_dates = session.query(ASSET_TS.date).filter_by(series_id=asset_ref.series_id).all()
             existing_dates_set = {d[0] for d in existing_dates}
 
             # 7. Prepare new rows
-            new_rows = []
-            for _, row in df.iterrows():
-                if row["Date"] not in existing_dates_set:
-                    new_rows.append({
-                        "date": row["Date"],
-                        "close": row[asset_ticker],
-                        "series_id": asset_ref.series_id
-                    })
+            new_rows = [
+                {"date": row["Date"], "close": row[asset_ticker], "series_id": asset_ref.series_id}
+                for _, row in df.iterrows()
+                if row["Date"] not in existing_dates_set
+            ]
 
-            # 8. Insert
+            # 8. Bulk insert
             if new_rows:
                 session.bulk_insert_mappings(ASSET_TS, new_rows)
                 print(f"Inserted {len(new_rows)} new records into ASSET_TS.")
@@ -119,13 +123,19 @@ def insert_full_asset(provider_name: str, asset_ticker: str, currency: str, df: 
     print("Asset import completed.")
 
 
+def insert_all_msci_assets(provider_name: str) -> None:
+    """
+    Load and insert all MSCI equity indices into the database.
 
-def insert_all_msci_assets(provider_name: str):
+    Iterates over a mapping of MSCI index names to currencies, loads each series
+    via `csv_msci_format`, and calls `insert_full_asset` for insertion.
+    Skips any series that are already fully loaded.
+
+    :param provider_name: Name of the data provider (e.g., 'bloomberg').
+    :type provider_name: str
+    :return: None
+    :rtype: None
     """
-    Lädt und speichert alle MSCI-Zeitreihen inklusive zugehöriger Währungen
-    in die Asset-Datenbankstruktur (ASSET, ASSET_REF, ASSET_TS).
-    """
-    # Mapping: Indexname aus CSV → Währung
     index_currency_map = {
         "MSCI Australia": "AUD",
         "MSCI Canada": "CAD",
@@ -153,8 +163,3 @@ def insert_all_msci_assets(provider_name: str):
             )
         except Exception as e:
             print(f"Error while processing {index_name}: {e}")
-
-
-
-#insert_all_msci_assets(provider_name="bloomberg")
-

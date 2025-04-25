@@ -6,5 +6,5 @@ from database.models.base import Base
 class  PORTFOLIO(Base):
     __tablename__ = "PORTFOLIO"
     portfolio_id = Column(Integer, primary_key=True)
-    name = Column(String)
+    portfolio_name = Column(String)
     investor_cur = Column(String(3))

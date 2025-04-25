@@ -14,7 +14,7 @@ def save_spot_price_csv():
 
     # Extrahiere die erste Spalte (angenommen, diese enthält das Datum oder den Code)
     df_date = df.iloc[:, 0].copy()
-    df_date.name = 'Date'
+    df_date.portfolio_name = 'Date'
 
     # Auswahl der Spalten 37 bis 45 (9 Spalten) und Kopie erstellen, um SettingWithCopyWarning zu vermeiden
     df_subset = df[df.columns[37:46]].copy()

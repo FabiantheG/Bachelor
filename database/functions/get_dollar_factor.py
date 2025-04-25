@@ -2,7 +2,24 @@ from database.models import *
 from database.session import session
 from database.functions import *
 
+
 def create_dollar_factor():
+    """
+    Create the dollar factor time series.
+
+    This function computes the monthly dollar factor by averaging the one-month FX forward
+    returns of the G10 currencies against USD. For each currency in the G10 group (EUR, JPY,
+    CHF, GBP, AUD, CAD, NZD, NOK, SEK), it:
+
+    1. Retrieves daily spot and 1-month forward rates via `get_fx('USD', currency, duration)`.
+    2. Resamples both series to month-end frequency.
+    3. Joins spot and forward rates, drops missing data.
+    4. Calculates the forward return for t+1 as `(F_t / S_{t+1}) - 1`.
+    5. Averages the cross-sectional returns across all currencies.
+
+    :return: A pandas DataFrame indexed by month-end dates containing the dollar factor.
+    :rtype: pandas.DataFrame
+    """
     g10 = ['EUR', 'JPY', 'CHF', 'GBP', 'AUD', 'CAD', 'NZD', 'NOK', 'SEK']
     fx_returns = []
 

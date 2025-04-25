@@ -1,59 +1,50 @@
-
 from database.models import *
 from database.models import INTEREST_RATE
 from database.session import session
 import pandas as pd
 
 
-
 def csv_deposit_format(currency):
     """
-    Loads 1M deposit rate data for a specified currency from a local CSV file.
+    Load 1-month deposit rates from a CSV file.
 
-    The function reads a prepared CSV file containing daily 1-month deposit rates
-    for various currencies, extracts the 'Date' column and the column corresponding
-    to the specified currency, and returns a DataFrame with these two columns.
+    Reads a preformatted CSV file containing daily 1-month deposit rates for various currencies,
+    extracts the 'Date' column and the column corresponding to the given currency, and returns them.
 
-    Parameters:
-    -----------
-    currency : str
-        The currency code to extract (e.g., 'USD', 'EUR', 'JPY').
-
-    Returns:
-    --------
-    pd.DataFrame
-        A DataFrame with two columns: 'Date' and the specified currency.
-        Dates are in string format and may be converted to datetime if needed.
+    :param currency: The currency code to extract (e.g., 'USD', 'EUR', 'JPY').
+    :type currency: str
+    :return: DataFrame with two columns ['Date', currency].
+    :rtype: pandas.DataFrame
+    :raises FileNotFoundError: If the CSV file is not found.
+    :raises KeyError: If the specified currency is not present in the data.
     """
     path = 'database/csv_file/1m_deposit_rates_ds_20101231_202503031_daily.csv'
     m1_deposit_data = pd.read_csv(path, skiprows=2, header=None, sep=';',
-                           names=["Date", 'CAD', 'JPY', 'EUR', 'USD', 'AUD', 'NOK', 'SEK', 'NZD', 'CHF', 'GBP'])
-    depost_rates = m1_deposit_data[['Date',currency]]
-    return depost_rates
+                                  names=["Date", 'CAD', 'JPY', 'EUR', 'USD',
+                                         'AUD', 'NOK', 'SEK', 'NZD', 'CHF', 'GBP'])
+    if currency not in m1_deposit_data.columns:
+        raise KeyError(f"Currency '{currency}' not found in CSV columns")
+    deposit_rates = m1_deposit_data[['Date', currency]]
+    return deposit_rates
 
 
 def insert_full_interest_rate(provider_name: str, currency: str, df: pd.DataFrame, duration: str):
     """
-    Inserts interest rate data (e.g. 1M deposit rates) into the database:
-    - Ensures the provider exists.
-    - Ensures the currency/duration pair exists in INTEREST_RATE.
-    - Ensures IR_REF exists for the provider/currency/duration combination.
-    - Inserts only new records into IR_TS (no duplicates by date).
-    - Parses date column from DD.MM.YYYY format.
+    Insert 1-month interest rate data into the database.
 
-    Parameters:
-    -----------
-    provider_name : str
-        Name of the data provider (e.g. 'refinitiv').
+    Ensures the provider exists, the INTEREST_RATE entry (currency+duration) exists,
+    and the IR_REF linking provider and rate exists. Parses dates, filters out duplicates,
+    and bulk-inserts new rows into IR_TS.
 
-    currency : str
-        Currency code (e.g. 'USD').
-
-    df : pd.DataFrame
-        Must contain columns ['Date', currency] where 'Date' is in DD.MM.YYYY format.
-
-    duration : str
-        Duration of the interest rate (e.g. '1M' for 1-month rates).
+    :param provider_name: Name of the data provider (e.g. 'refinitiv').
+    :type provider_name: str
+    :param currency: Currency code (e.g. 'USD').
+    :type currency: str
+    :param df: DataFrame with columns ['Date', currency], where 'Date' is 'DD.MM.YYYY'.
+    :type df: pandas.DataFrame
+    :param duration: Duration identifier (e.g. '1M').
+    :type duration: str
+    :raises ValueError: If required columns are missing in `df`.
     """
     with session:
         with session.begin():
@@ -67,7 +58,7 @@ def insert_full_interest_rate(provider_name: str, currency: str, df: pd.DataFram
             else:
                 print(f"Provider '{provider_name}' already exists (ID {provider.provider_id})")
 
-            # Step 2: INTEREST_RATE entry (currency + duration)
+            # Step 2: INTEREST_RATE
             ir = session.query(INTEREST_RATE).filter_by(currency=currency, duration=duration).first()
             if not ir:
                 ir = INTEREST_RATE(currency=currency, duration=duration)
@@ -77,11 +68,8 @@ def insert_full_interest_rate(provider_name: str, currency: str, df: pd.DataFram
             else:
                 print(f"INTEREST_RATE already exists for {currency}, duration '{duration}' (ID {ir.ir_id})")
 
-            # Step 3: IR_REF (provider + ir_id)
-            ir_ref = session.query(IR_REF).filter_by(
-                provider_id=provider.provider_id,
-                ir_id=ir.ir_id
-            ).first()
+            # Step 3: IR_REF
+            ir_ref = session.query(IR_REF).filter_by(provider_id=provider.provider_id, ir_id=ir.ir_id).first()
             if not ir_ref:
                 ir_ref = IR_REF(provider_id=provider.provider_id, ir_id=ir.ir_id)
                 session.add(ir_ref)
@@ -90,57 +78,44 @@ def insert_full_interest_rate(provider_name: str, currency: str, df: pd.DataFram
             else:
                 print(f"IR_REF already exists (series_id: {ir_ref.series_id})")
 
-            # Step 4: Validate DataFrame columns
+            # Step 4: Validate DataFrame
             if "Date" not in df.columns or currency not in df.columns:
-                raise ValueError(f"DataFrame must contain columns 'Date' and '{currency}'.")
+                raise ValueError(f"DataFrame must contain 'Date' and '{currency}' columns")
 
-            # Step 5: Convert 'Date' from string to datetime.date (assumes DD.MM.YYYY)
+            # Step 5: Parse and filter
             df["Date"] = pd.to_datetime(df["Date"], format="%d.%m.%Y", errors="coerce").dt.date
+            df = df[df["Date"].notna() & df[currency].notna()]
 
-            # Drop rows with invalid or missing data
-            df = df[df["Date"].notna()]
-            df = df[df[currency].notna()]
+            # Step 6: Exclude existing dates
+            existing_dates = {d[0] for d in session.query(IR_TS.date).filter_by(series_id=ir_ref.series_id).all()}
 
-            # Step 6: Get existing dates
-            existing_dates = session.query(IR_TS.date).filter_by(series_id=ir_ref.series_id).all()
-            existing_dates_set = {d[0] for d in existing_dates}
+            # Step 7: Prepare new records
+            new_records = [
+                {"date": row["Date"], "rate": row[currency], "series_id": ir_ref.series_id}
+                for _, row in df.iterrows() if row["Date"] not in existing_dates
+            ]
 
-            # Step 7: Prepare only new entries
-            new_records = []
-            for _, row in df.iterrows():
-                if row["Date"] not in existing_dates_set:
-                    new_records.append({
-                        "date": row["Date"],
-                        "rate": row[currency],
-                        "series_id": ir_ref.series_id
-                    })
-
-            # Step 8: Insert if needed
+            # Step 8: Bulk insert
             if new_records:
                 session.bulk_insert_mappings(IR_TS, new_records)
                 print(f"Inserted {len(new_records)} new IR_TS records.")
             else:
-                print("No new IR_TS records to insert – all dates already exist.")
+                print("No new IR_TS records to insert – all dates already exist")
 
-    print("Interest Rate import completed.")
+    print("Interest rate import completed.")
 
 
 def insert_all_deposit_rates(provider_name: str, duration: str = "1M"):
     """
-    Loads and inserts 1M deposit rate data for a predefined list of currencies into the database.
+    Load and insert 1-month deposit rates for multiple currencies.
 
-    For each currency:
-    - Loads data from the CSV file using `csv_deposit_format`.
-    - Inserts provider, currency, IR_REF and IR_TS entries (skipping existing).
-    - Prints progress and errors per currency.
+    Iterates through a predefined currency list, calls `csv_deposit_format`,
+    then `insert_full_interest_rate`, skipping duplicates and logging progress.
 
-    Parameters:
-    -----------
-    provider_name : str
-        Name of the data provider (e.g. 'bloomberg').
-
-    duration : str
-        Duration of the interest rate (default is '1M').
+    :param provider_name: Name of the data provider (e.g. 'bloomberg').
+    :type provider_name: str
+    :param duration: Duration identifier (default '1M').
+    :type duration: str
     """
     currencies = ["JPY", "USD", "CHF", "NOK", "SEK", "CAD", "NZD", "AUD", "EUR", "GBP"]
 
@@ -151,8 +126,3 @@ def insert_all_deposit_rates(provider_name: str, duration: str = "1M"):
             insert_full_interest_rate(provider_name=provider_name, currency=currency, df=df, duration=duration)
         except Exception as e:
             print(f"Error processing {currency}: {e}")
-
-
-
-
-
