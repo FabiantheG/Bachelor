@@ -1,21 +1,14 @@
 from database.models.provider import PROVIDER
 from database.session import session
 
-
-
 def insert_new_provider(name: str) -> PROVIDER:
     """
-    Inserts a new provider into the PROVIDER table if it does not already exist.
+    Insert a new provider into the PROVIDER table if it does not already exist.
 
-    Parameters:
-    -----------
-    name : str
-        The name of the provider (e.g. 'bloomberg')
-
-    Returns:
-    --------
-    Provider
-        The Provider object from the database, either newly created or already existing.
+    :param name: Name of the provider (e.g., 'bloomberg').
+    :type name: str
+    :return: The Provider object from the database, newly created or existing.
+    :rtype: PROVIDER
     """
     with session:
         with session.begin():
@@ -28,8 +21,3 @@ def insert_new_provider(name: str) -> PROVIDER:
             else:
                 print(f"Provider '{name}' already exists with ID {provider.provider_id}.")
             return provider
-
-
-#insert_new_provider('bloomberg2322')
-
-

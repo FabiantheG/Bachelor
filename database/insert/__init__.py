@@ -8,5 +8,3 @@ from database.insert.insert_fx import *
 from database.insert.insert_gdp import *
 from database.insert.insert_portfolio import *
 from database.insert.insert_simulation import *
-
-from database.insert.insert_factor import *
