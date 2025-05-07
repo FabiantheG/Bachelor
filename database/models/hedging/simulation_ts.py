@@ -9,6 +9,7 @@ class SIMULATION_TS(Base):
     date = Column(Date, primary_key=True, nullable=False)
     unhedged_growth = Column(Float, nullable=False)
     hedged_growth = Column(Float, nullable=False)
+    local_growth = Column(Float, nullable=False)
 
 
 

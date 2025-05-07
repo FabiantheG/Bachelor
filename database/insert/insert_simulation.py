@@ -35,7 +35,7 @@ def insert_simulation(portfolio_name: str, hedge_name: str, version: float, df: 
     df['date'] = pd.to_datetime(df['date']).dt.date
 
     with session:
-        with session.begin():
+
             # Retrieve portfolio
             portfolio = session.query(PORTFOLIO).filter_by(portfolio_name=portfolio_name).first()
             if not portfolio:
@@ -75,7 +75,8 @@ def insert_simulation(portfolio_name: str, hedge_name: str, version: float, df: 
                     "simulation_id": simulation_id,
                     "date": row["date"],
                     "unhedged_growth": row["unhedged_growth"],
-                    "hedged_growth": row["hedged_growth"]
+                    "hedged_growth": row["hedged_growth"],
+                    "local_growth": row["local_growth"]
                 }
                 for _, row in df.iterrows() if row["date"] not in existing_dates
             ]
@@ -86,3 +87,5 @@ def insert_simulation(portfolio_name: str, hedge_name: str, version: float, df: 
                 print(f"Inserted {len(new_records)} new SIMULATION_TS records.")
             else:
                 print("No new SIMULATION_TS entries to add.")
+
+            session.commit()

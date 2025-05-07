@@ -25,7 +25,7 @@ def insert_portfolio(portfolio_name, investor_currency, asset_tickers, weights):
         raise ValueError("asset_tickers and weights must have the same length")
 
     with session:
-        with session.begin():
+
             # 1) Create or retrieve the Portfolio
             existing_portfolio = session.query(PORTFOLIO).filter_by(portfolio_name=portfolio_name).first()
             if existing_portfolio:
@@ -64,4 +64,4 @@ def insert_portfolio(portfolio_name, investor_currency, asset_tickers, weights):
                     session.add(new_assoc)
                     print(f"Linked '{ticker}' to portfolio with weight {weight}")
 
-            return portfolio_id
+            session.commit()
