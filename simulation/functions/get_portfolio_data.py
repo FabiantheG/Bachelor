@@ -5,7 +5,7 @@ import pandas as pd
 import numpy as np
 
 
-def get_portfolio_data(assets, base_cur='CHF'):
+def get_portfolio_data(portfolio_name, base_cur='CHF'):
     """
         Load asset and FX time series for a given list of assets.
 
@@ -25,10 +25,16 @@ def get_portfolio_data(assets, base_cur='CHF'):
             - df_fwd: DataFrame of forward FX returns per currency (monthly frequency)
         :rtype: tuple[pd.DataFrame, list[str], pd.DataFrame, pd.DataFrame]
     """
+    portfolio = session.query(PORTFOLIO).filter_by(portfolio_name=portfolio_name).first()
+    id = portfolio.portfolio_id
+    asset_connections = session.query(PORTFOLIO_ASSET_CONNECTION).filter_by(portfolio_id=id).all()
+    assets = [row.asset_ticker for row in asset_connections]
+    weights = [row.weight for row in asset_connections]
+
+
     df_asset = pd.DataFrame()
     df_fwd = pd.DataFrame()
     df_spot = pd.DataFrame()
-    df_hedge = pd.DataFrame()
     cur_list = []
 
     # Loop over all assets
@@ -65,12 +71,12 @@ def get_portfolio_data(assets, base_cur='CHF'):
         fx[cur + 'spot'] = np.log(fx['spot'] / fx['spot'].shift(1))  # Spot return
         fx[cur + 'forward'] = np.log(fx['forward'].shift(1)) - np.log(fx['spot'])  # Forward hedge return
 
-        fx[cur + 'hedge'] = fx[cur + 'forward']  - fx[cur + 'spot']
+
 
         # Merge into spot and forward DataFrames
         df_spot = df_spot.join(fx[cur + 'spot'], how='outer').rename(columns={cur + 'spot': cur})
         df_fwd = df_fwd.join(fx[cur + 'forward'], how='outer').rename(columns={cur + 'forward': cur})
-        df_hedge = df_fwd.join(fx[cur + 'hedge'], how='outer').rename(columns={cur + 'hedge': cur})
 
 
-    return df_asset, cur_list, df_spot, df_fwd, df_hedge
+
+    return df_asset, cur_list, df_spot, df_fwd, weights

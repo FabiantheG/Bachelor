@@ -8,7 +8,7 @@ import numpy as np
 
 
 
-def simulate_portfolio(asset_return,currencies,fx_return,fwd_return,weights,hedge_ratio = 1 ,start = '2004-01-01',end = '2017-12-31'):
+def simulate_portfolio(asset_return,currencies,fx_return,fwd_return,weights,hedge_ratio   ,start = '2004-01-01',end = '2017-12-31'):
     """
         Simulate the performance of a portfolio with and without currency hedging.
 
@@ -47,24 +47,30 @@ def simulate_portfolio(asset_return,currencies,fx_return,fwd_return,weights,hedg
     start_date = pd.to_datetime(start)
     end_date = pd.to_datetime(end)
 
+    #if hedge_ratio == 1:
+    #    hedge_ratio = pd.DataFrame(1, index=asset_return.index, columns=currencies)
+
+
+
     for x in range(len(asset_return.columns)):
         currency = currencies[x]
         asset_ticker = asset_return.columns[x]
         current_asset_return = asset_return[asset_ticker]
         current_fx_return = fx_return[currency]
         current_fwd_return = fwd_return[currency]
-        #current_hedge_ratio = hedge_ratio[asset_ticker]
+        current_hedge_ratio = hedge_ratio[currency]
 
         current_df = pd.concat([
             current_asset_return,
             current_fx_return,
             current_fwd_return,
-            #current_hedge_ratio
-        ], axis=1, keys=['asset', 'fx', 'fwd', 'hedge'])
+            current_hedge_ratio
+        ], axis=1, keys=['asset', 'fx', 'fwd', 'current_hedge_ratio'])
+
 
         current_df = current_df.dropna()
 
-        current_df['hedge_logreturn']  = (current_df["fwd"] - current_df["fx"]) *  hedge_ratio # current_hedge_ratio
+        current_df['hedge_logreturn']  = (current_df["fwd"] - current_df["fx"]) *  current_df['current_hedge_ratio']
 
         current_df['total_hedged_logreturn'] = current_df['asset'] + current_df['fx'] + current_df['hedge_logreturn']
 
