@@ -5,75 +5,46 @@ from database.session import session
 from simulation.functions import *
 import pandas as pd
 import numpy as np
-import statsmodels.api as sm
 
 
-portfolio_name = 'portfolio1'
-x = get_portfolio_data(portfolio_name)
+base = 'CHF'
+
+
+portfolio_name = 'portfolio' + base
+x = get_portfolio_data(portfolio_name,base)
+
+dollar  = create_dollar_factor(base)
+carry = create_carry_factor(base)
+
+
+
+
+ratio_df = ols(x[1],x[3],carry,dollar)
+#ratio_df = pd.DataFrame(1, index=x[0].index, columns=x[1])
 
 
 
 
 
-#metrics = metric_simulation(df)
 
 
-#plot_simulation(df,save=True)
+df = simulate_portfolio(x[0],x[1],x[2],x[3],x[4],hedge_ratio = ratio_df,fx_portfolio = True)
 
-#insert_portfolio('portfolio1','CHF',['MSCI_UK','MSCI_USA'],[0.5,0.5])
+#plot_simulation(df)
 
+g10 = ['EUR', 'JPY',  'GBP', 'AUD', 'CAD', 'NZD', 'NOK', 'SEK','USD']
 
-dollar  = get_factor('dollar')
-carry = get_factor('carry')
-
-def compute_hedge_ratio_series(cur_list, df_fwd, carry_factor_df, dollar_factor_df, window=60):
-
-    # Combine factor data
-    factors = pd.concat([carry_factor_df, dollar_factor_df], axis=1)
-    factors.columns = ['Carry', 'Dollar']
+df = pd.DataFrame()
+for cur in g10:
+    spotrate = get_fx(cur,'CHF','Spot')
+    fwdrate = get_fx(cur,'CHF','1M')
 
 
-    # Shift forward returns to align with decision timing (t decision → return at t+1)
-    df_fwd_shifted = df_fwd.shift(-1)
-    factors = factors.loc[df_fwd_shifted.index]
+    df[cur+'CHFspot'] = spotrate
+    df[cur+'CHFforward'] = fwdrate
+
+df  = df.resample('M').last()
+df.to_excel('rates.xlsx')
 
 
-    # Prepare output DataFrame takes the first 60 (window) entries away
-    hedge_ratio_df = pd.DataFrame(index=df_fwd_shifted.index[window:-1], columns=cur_list)
-
-    for cur in cur_list:
-        y = df_fwd_shifted[cur]
-
-        for t in range(window, len(y) - 1):
-            y_window = y.iloc[t - window:t]
-            X_window = factors.iloc[t - window:t]
-
-            if y_window.isnull().any() or X_window.isnull().any().any():
-                continue
-
-            X_window = sm.add_constant(X_window, has_constant='add')
-            model = sm.OLS(y_window, X_window).fit() #(Ordinary Least Squares, OLS)
-            beta = model.params
-
-            # Add constant also to X_t (aktuelle Faktoren bei Zeitpunkt t)
-            X_t = sm.add_constant(factors.iloc[t:t+1], has_constant='add')
-            expected_return = float(np.dot(X_t.values, beta.values))
-
-            # Hedge if expected return < 0
-            hedge_ratio = 1.0 if expected_return < 0 else 0.0
-            hedge_ratio_df.at[y.index[t], cur] = hedge_ratio
-
-    hedge_ratio_df = hedge_ratio_df.shift(1) # because we get the reward one month before
-
-    return hedge_ratio_df.astype(float)
-
-ratio_df = compute_hedge_ratio_series(x[1],x[3],carry,dollar)
-
-
-df = simulate_portfolio(x[0],x[1],x[2],x[3],x[4],hedge_ratio = ratio_df)
-
-#print(ratio_df)
-plot_simulation(df)
-metrics = metric_simulation(df)
-latex  = format_latex_table(metrics)
 

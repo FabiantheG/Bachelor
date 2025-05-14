@@ -8,3 +8,6 @@ from simulation.functions.metric_simulation import metric_simulation
 from simulation.functions.dcf_simulation import dcf_simulation
 
 from simulation.functions.format_latex_table import format_latex_table
+
+
+from simulation.functions.hedging.ols import ols, ols2

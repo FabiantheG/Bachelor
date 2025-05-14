@@ -8,7 +8,7 @@ import numpy as np
 
 
 
-def simulate_portfolio(asset_return,currencies,fx_return,fwd_return,weights,hedge_ratio   ,start = '2004-01-01',end = '2017-12-31'):
+def simulate_portfolio(asset_return,currencies,fx_return,fwd_return,weights,hedge_ratio   ,start = '2011-01-01',end = '2020-12-31', fx_portfolio = False):
     """
         Simulate the performance of a portfolio with and without currency hedging.
 
@@ -43,12 +43,14 @@ def simulate_portfolio(asset_return,currencies,fx_return,fwd_return,weights,hedg
     local_growth_df = pd.DataFrame()
     hedged_growth_df = pd.DataFrame()
     unhedged_growth_df = pd.DataFrame()
+    fully_hedged_growth_df = pd.DataFrame()
 
     start_date = pd.to_datetime(start)
     end_date = pd.to_datetime(end)
 
-    #if hedge_ratio == 1:
-    #    hedge_ratio = pd.DataFrame(1, index=asset_return.index, columns=currencies)
+    if fx_portfolio:
+        asset_return = pd.DataFrame(data = 0,index = asset_return.index,columns = asset_return.columns)
+
 
 
 
@@ -76,9 +78,13 @@ def simulate_portfolio(asset_return,currencies,fx_return,fwd_return,weights,hedg
 
         current_df['total_unhedged_logreturn']  = current_df['asset'] + current_df['fx']
 
+        current_df['fully_hedged_logreturn'] = current_df['asset'] + current_df["fwd"] # fully hedged with hedge ratio 1
+
+
         local_growth_df[asset_ticker] = current_df['asset']
         unhedged_growth_df[asset_ticker] = current_df['total_unhedged_logreturn']
         hedged_growth_df[asset_ticker] = current_df['total_hedged_logreturn']
+        fully_hedged_growth_df[asset_ticker] = current_df['fully_hedged_logreturn']
 
 
     # filter with start and end date
@@ -86,29 +92,35 @@ def simulate_portfolio(asset_return,currencies,fx_return,fwd_return,weights,hedg
     local_growth_df = local_growth_df.loc[start_date:end_date]
     unhedged_growth_df = unhedged_growth_df.loc[start_date:end_date]
     hedged_growth_df = hedged_growth_df.loc[start_date:end_date]
+    fully_hedged_growth_df = fully_hedged_growth_df.loc[start_date:end_date]
 
     # cumsum
     local_growth_df = local_growth_df.cumsum()
     unhedged_growth_df = unhedged_growth_df.cumsum()
     hedged_growth_df = hedged_growth_df.cumsum()
+    fully_hedged_growth_df = fully_hedged_growth_df .cumsum()
 
     # backtransformation to get the growth
     local_growth_df = np.exp(local_growth_df)
     unhedged_growth_df = np.exp(unhedged_growth_df)
     hedged_growth_df = np.exp(hedged_growth_df)
+    fully_hedged_growth_df = np.exp(fully_hedged_growth_df)
 
     # Normalize to start at 1
     local_growth_df = local_growth_df / local_growth_df.iloc[0]
     unhedged_growth_df = unhedged_growth_df / unhedged_growth_df.iloc[0]
     hedged_growth_df = hedged_growth_df / hedged_growth_df.iloc[0]
+    fully_hedged_growth_df = fully_hedged_growth_df  / fully_hedged_growth_df.iloc[0]
 
     local_growth_df = local_growth_df.dot(weights)
     unhedged_growth_df = unhedged_growth_df.dot(weights)
     hedged_growth_df = hedged_growth_df.dot(weights)
+    fully_hedged_growth_df = fully_hedged_growth_df.dot(weights)
 
     df['local_growth'] = local_growth_df
     df['unhedged_growth'] = unhedged_growth_df
     df['hedged_growth'] = hedged_growth_df
+    df['fully_hedged_growth'] = fully_hedged_growth_df
 
 
     return df

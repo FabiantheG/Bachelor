@@ -10,7 +10,7 @@ insert_cpi = True
 insert_fx = True
 insert_gdp = True
 insert_factors = True
-
+insert_portfolios = True
 
 
 
@@ -53,3 +53,21 @@ if insert_factor:
 
     insert_factor('dollar',dollar)
     insert_factor('carry',carry)
+
+
+if insert_portfolios:
+    g10 = ['AUD', 'CAD', 'EUR', 'JPY', 'NZD', 'NOK', 'SEK', 'CHF', 'GBP', 'USD']
+    tickers = [
+        "MSCI_Australia", "MSCI_Canada", "MSCI_Europe", "MSCI_Japan",
+        "MSCI_New_Zealand", "MSCI_Norway", "MSCI_Sweden", "MSCI_Switzerland",
+        "MSCI_UK", "MSCI_USA"
+    ]
+    for cur in g10:
+        name = 'portfolio' + cur
+        index = g10.index(cur)
+
+        tickers_subset = tickers[:index] + tickers[index + 1:]
+        weights = [1/ len(tickers_subset) for x in tickers_subset]
+
+
+        insert_portfolio(name, cur, tickers_subset, weights)

@@ -2,14 +2,14 @@ from database.models import *
 from database.session import session
 from database.functions import *
 import pandas as pd
+import numpy as np
+
 
 def create_carry_factor(base_currency='CHF'):
     """
     Constructs a time series of the global carry factor from the perspective of a given base currency.
 
-    The carry factor is computed as the return difference between a portfolio long in the top 3
-    carry currencies and short in the bottom 3 carry currencies, where carry is defined as the
-    (Spot - Forward) / Spot premium for 1-month FX contracts.
+
 
     Parameters:
     -----------
@@ -44,7 +44,7 @@ def create_carry_factor(base_currency='CHF'):
 
     # 2. Calculate carry premium = (Spot - Forward) / Spot
     carry_premium = (spot_df - fwd_df) / spot_df
-
+    spot_return = np.log(spot_df / spot_df.shift(1))
     carry_factors = []
 
     # 3. Loop over all months except the last one (since next-month spot is required)
@@ -62,12 +62,8 @@ def create_carry_factor(base_currency='CHF'):
         returns_next_month = {}
 
         for quote in cp.index:
-            spot_today = spot_df.loc[date, quote]
-            spot_next = spot_df.loc[next_month, quote]
-            fwd_today = fwd_df.loc[date, quote]
-
             # FX return using 1-month forward contract
-            fx_return = (fwd_today / spot_next) - 1
+            fx_return = spot_return.loc[date, quote]
             returns_next_month[quote] = fx_return
 
         returns_next_month = pd.Series(returns_next_month)
@@ -80,3 +76,6 @@ def create_carry_factor(base_currency='CHF'):
     carry_df = pd.DataFrame(carry_factors, columns=['date', 'carry_factor']).set_index('date')
 
     return carry_df
+
+
+create_carry_factor(base_currency='CHF')

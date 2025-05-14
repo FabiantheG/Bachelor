@@ -1,10 +1,12 @@
+from scipy.signal import dfreqresp
+
 from database.models import *
 from database.session import session
 from database.functions import *
 import pandas as pd
+import numpy as np
 
-
-def create_dollar_factor():
+def create_dollar_factor(base = 'CHF'):
     """
     Create the dollar factor time series.
 
@@ -21,29 +23,30 @@ def create_dollar_factor():
     :return: A pandas DataFrame indexed by month-end dates containing the dollar factor.
     :rtype: pandas.DataFrame
     """
-    g10 = ['EUR', 'JPY', 'CHF', 'GBP', 'AUD', 'CAD', 'NZD', 'NOK', 'SEK']
+    g10 = ['EUR', 'JPY', 'CHF', 'GBP', 'AUD', 'CAD', 'NZD', 'NOK', 'SEK','USD']
+    g10 = [cur for cur in g10 if cur != base] # take all g10 besides the base
+
     fx_returns = []
 
     for quote in g10:
         # Retrieve daily spot and 1-month forward exchange rates (USD/quote)
-        spot_df = get_fx('USD', quote, duration='Spot')
-        fwd_df = get_fx('USD', quote, duration='1M')
+        df = get_fx(base, quote, duration='Spot')
+
 
         # Resample to monthly frequency using end-of-month values
-        spot_df = spot_df.resample('M').last()
-        fwd_df = fwd_df.resample('M').last()
+        df = df.resample('M').last()
 
-        # Join spot and forward rates into one DataFrame
-        merged = spot_df.join(fwd_df, lsuffix='_spot', rsuffix='_fwd').dropna()
+        # calculate the currency return
+        df[quote] = np.log(df['rate'] / df['rate'].shift(1))
 
-        # Calculate the FX forward return for t+1: (F_t / S_{t+1}) - 1
-        merged['fx_return'] = (merged['rate_fwd'] / merged['rate_spot'].shift(-1)) - 1
 
-        fx_returns.append(merged['fx_return'])
+
+
+        fx_returns.append(df[quote])
 
     # Combine all currency return series into one DataFrame
     fx_matrix = pd.concat(fx_returns, axis=1)
-    fx_matrix.columns = g10
+
 
     # Compute the dollar factor as the cross-sectional average of FX returns
     dollar_factor = fx_matrix.mean(axis=1).to_frame(name='dollar_factor')
