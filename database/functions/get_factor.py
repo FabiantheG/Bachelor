@@ -24,5 +24,7 @@ def get_factor(name,version = 1):
             df = orm_list_to_df(new)
             df = df.drop(columns=["series_id"])
 
+
+    df.columns = [name]
     return df
 

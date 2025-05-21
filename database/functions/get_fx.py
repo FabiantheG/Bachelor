@@ -1,6 +1,7 @@
 from database.models import *
 from database.session import session
-from database.functions.orm_list_to_df import *
+from database.functions import *
+from database.functions.orm_list_to_df import orm_list_to_df
 
 def get_fx_usd(base, quote, duration):
     """

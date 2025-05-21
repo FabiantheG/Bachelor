@@ -64,10 +64,11 @@ if insert_portfolios:
     ]
     for cur in g10:
         name = 'portfolio' + cur
+        namefx = 'portfolioFX' + cur
         index = g10.index(cur)
 
         tickers_subset = tickers[:index] + tickers[index + 1:]
         weights = [1/ len(tickers_subset) for x in tickers_subset]
 
-
+        insert_portfolio(namefx, cur, tickers_subset, weights)
         insert_portfolio(name, cur, tickers_subset, weights)

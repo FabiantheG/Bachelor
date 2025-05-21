@@ -49,7 +49,7 @@ def create_dollar_factor(base = 'CHF'):
 
 
     # Compute the dollar factor as the cross-sectional average of FX returns
-    dollar_factor = fx_matrix.mean(axis=1).to_frame(name='dollar_factor')
+    dollar_factor = fx_matrix.mean(axis=1).to_frame(name='dollar')
     dollar_factor = dollar_factor.dropna()
 
     return dollar_factor

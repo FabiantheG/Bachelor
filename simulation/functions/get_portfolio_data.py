@@ -3,9 +3,10 @@ from database.functions import *
 from database.session import session
 import pandas as pd
 import numpy as np
+from simulation.functions.get_factors_simulation import  get_factors_simulation
 
+def get_portfolio_data(portfolio_name, base_cur='CHF',factor_list= ['dollar','carry']):
 
-def get_portfolio_data(portfolio_name, base_cur='CHF'):
     """
         Load asset and FX time series for a given list of assets.
 
@@ -35,6 +36,8 @@ def get_portfolio_data(portfolio_name, base_cur='CHF'):
     df_asset = pd.DataFrame()
     df_fwd = pd.DataFrame()
     df_spot = pd.DataFrame()
+    df_hedge = pd.DataFrame()
+
     cur_list = []
 
     # Loop over all assets
@@ -69,14 +72,18 @@ def get_portfolio_data(portfolio_name, base_cur='CHF'):
 
         # Calculate log returns
         fx[cur + 'spot'] = np.log(fx['spot'] / fx['spot'].shift(1))  # Spot return
-        fx[cur + 'forward'] = np.log(fx['forward'].shift(1)) - np.log(fx['spot'])  # Forward hedge return
+        fx[cur + 'forward'] = np.log(fx['forward'].shift(1)) - np.log(fx['spot'].shift(1))  # Forward hedge return
+        fx[cur + 'hedge'] = fx[cur + 'forward'] - fx[cur + 'spot']
 
 
 
         # Merge into spot and forward DataFrames
         df_spot = df_spot.join(fx[cur + 'spot'], how='outer').rename(columns={cur + 'spot': cur})
         df_fwd = df_fwd.join(fx[cur + 'forward'], how='outer').rename(columns={cur + 'forward': cur})
+        df_hedge = df_hedge.join(fx[cur + 'hedge'], how='outer').rename(columns={cur + 'hedge': cur})
 
 
 
-    return df_asset, cur_list, df_spot, df_fwd, weights
+    factors = get_factors_simulation(base = base_cur,cur_list= cur_list,list_factors=factor_list)
+
+    return df_asset, cur_list, df_spot, df_fwd, weights, df_hedge, factors
