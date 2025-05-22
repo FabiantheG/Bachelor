@@ -1,7 +1,7 @@
 
 from database.functions import *
 import pandas as pd
-
+import numpy as np
 
 
 def create_volatility_factor(base_currency):
@@ -28,11 +28,13 @@ def create_volatility_factor(base_currency):
     df = df.resample('M').mean() # take the mean of the logreturns each months
     df = df.mean(axis=1) # take the mean of all different squared logreturns of euach month and each currency
 
-    df = df.dropna()
+
     df = pd.DataFrame(df)
+
     df.columns = ['rate']
 
-
+    df['rate'] = (1/3) * np.log(df['rate'] / df['rate'].shift(3))
+    df = df.dropna()
 
     return df
 

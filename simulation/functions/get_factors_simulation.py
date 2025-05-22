@@ -3,28 +3,37 @@ import pandas as pd
 
 
 
-def get_factors_simulation(base, cur_list, list_factors):
+def get_factors_simulation(base):
 
     list = []
 
 
 
-    if 'dollar' in list_factors:
-        dollar = get_factor('dollar'+base)
-        dollar.columns = ['dollar']
-        list.append(dollar)
 
-    if 'carry' in list_factors:
-        carry = get_factor('carry'+base)
-        carry.columns = ['carry']
-        list.append(carry)
+    dollar = get_factor('dollar'+base)
+    dollar.columns = ['dollar']
+    list.append(dollar)
 
-    for cur in cur_list:
-        if 'volatility' in list_factors:
-            vol = get_factor('volatility' + cur + base)
-            vol.columns = ['volatility'+cur + base]
-            list.append(vol)
 
+    carry = get_factor('carry'+base)
+    carry.columns = ['carry']
+    list.append(carry)
+
+    volatility = get_factor('volatility'+base)
+    volatility.columns = ['volatility']
+    list.append(volatility)
+
+    ted = get_factor('ted')
+    ted.columns = ['ted']
+    list.append(ted)
+
+    commodity = get_factor('commodity')
+    commodity.columns = ['commodity']
+    list.append(commodity)
+
+    afd = get_factor('afd'+base)
+    afd.columns = ['afd']
+    list.append(afd)
 
 
     factors = pd.concat(list,axis = 1,join='inner')

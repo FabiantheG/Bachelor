@@ -7,11 +7,11 @@ import pandas as pd
 import numpy as np
 
 
-base = 'CHF'
+base = 'USD'
 portfolio_name = 'portfolio' + base
 
 
-data = get_portfolio_data(portfolio_name,base,['dollar','carry','volatility'])
+data = get_portfolio_data(portfolio_name,base)
 
 
 asset_logreturns = data[0]
@@ -24,22 +24,25 @@ factors = data[6]
 
 
 
-#dollar  = create_dollar_factor(base)
-#carry = create_carry_factor(base)
+ols = ols(currency_list,df_hedge,factors)
 
-#factors = pd.concat([dollar,carry], axis=1, join='inner')
+#print(ols)
 
 
-ols_simulation = xgboost(x[1],x[5], x[6],['dollar','carry','volatility'] )
 
-hedge_ratios = ols_simulation[0]
 
-df = simulate_portfolio(x[0],x[1],x[2],x[3],x[4],hedge_ratio = hedge_ratios,fx_portfolio = True)
+
+
+#ols_simulation = xgboost(x[1],x[5], x[6],['dollar','carry','volatility'] )
+
+#hedge_ratios = ols_simulation[0]
+
+df = simulate_portfolio(asset_logreturns,currency_list,fx_logreturns,fwd_logreturns,weights,df_hedge,fx_portfolio = False)
 
 plot_simulation(df)
 
 
-print(x[6])
+
 
 
 

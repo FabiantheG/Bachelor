@@ -5,7 +5,7 @@ import pandas as pd
 import numpy as np
 from simulation.functions.get_factors_simulation import  get_factors_simulation
 
-def get_portfolio_data(portfolio_name, base_cur='CHF',factor_list= ['dollar','carry']):
+def get_portfolio_data(portfolio_name, base_cur='CHF'):
 
     """
         Load asset and FX time series for a given list of assets.
@@ -84,6 +84,6 @@ def get_portfolio_data(portfolio_name, base_cur='CHF',factor_list= ['dollar','ca
 
 
 
-    factors = get_factors_simulation(base = base_cur,cur_list= cur_list,list_factors=factor_list)
+    factors = get_factors_simulation(base = base_cur)
 
     return df_asset, cur_list, df_spot, df_fwd, weights, df_hedge, factors
