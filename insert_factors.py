@@ -17,7 +17,7 @@ if dolcar:
         insert_factor('carry'+base,carry)
         print(str(current) + '/' + str(len(g10)))
 
-for base in ['USD','CHF']:
+for base in ['EUR', 'JPY',  'GBP', 'AUD', 'CAD', 'NZD', 'NOK', 'SEK','USD','CHF']:
     volatility = create_volatility_factor(base)
     afd = create_afd_factor(base)
     insert_factor('volatility'+base,volatility)

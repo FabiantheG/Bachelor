@@ -6,8 +6,8 @@ import numpy as np
 
 def create_commodity_factor():
 
-    df  = pd.read_csv('database/csv_file/commodity.csv')
-    df['date'] = pd.to_datetime(df['date'])
+    df  = pd.read_csv('database/csv_file/CRB.csv')
+    df['date'] = pd.to_datetime(df['date'],dayfirst=True)
     df.set_index('date', inplace=True)
 
     df.columns = ['rate']

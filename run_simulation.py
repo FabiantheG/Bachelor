@@ -22,22 +22,22 @@ weights = data[4]
 df_hedge = data[5]
 factors = data[6]
 
+predict = xgboost(currency_list,
+                  df_hedge,
+                  factors,
+                  duration =2)
 
+hedge_ratios = predict[0]
 
-ols = ols(currency_list,df_hedge,factors)
-
-#print(ols)
-
-
-
-
-
-
-#ols_simulation = xgboost(x[1],x[5], x[6],['dollar','carry','volatility'] )
-
-#hedge_ratios = ols_simulation[0]
-
-df = simulate_portfolio(asset_logreturns,currency_list,fx_logreturns,fwd_logreturns,weights,df_hedge,fx_portfolio = False)
+df = simulate_portfolio(asset_logreturns,
+                        currency_list,
+                        fx_logreturns,
+                        fwd_logreturns,
+                        weights,
+                        hedge_ratios,
+                        start = '2011-01-01',
+                        end = '2024-12-31',
+                        fx_portfolio = False)
 
 plot_simulation(df)
 
@@ -45,8 +45,4 @@ plot_simulation(df)
 
 
 
-
-
-
-#print(get_factor('dollarUSDCHF'))
 
