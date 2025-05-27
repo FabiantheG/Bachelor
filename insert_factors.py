@@ -3,7 +3,7 @@ from database.functions import *
 from database.insert import *
 
 
-dolcar = False
+dolcar = True
 
 if dolcar:
     g10 =  ['CHF','EUR', 'JPY',  'GBP', 'AUD', 'CAD', 'NZD', 'NOK', 'SEK','USD']

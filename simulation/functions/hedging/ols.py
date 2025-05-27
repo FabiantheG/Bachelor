@@ -58,6 +58,7 @@ def ols(cur_list, hedge_logreturn, factors, window=60, duration=1):
             y_carry = factor_shifted_window[['carry_shifted']]
             model_carry = sm.OLS(y_carry, predictor_window_const).fit()
             beta_carry = model_carry.params
+
             pred = sm.add_constant(predictors.iloc[t - 1:t], has_constant='add')
             expected_carry = float(pred @ beta_carry)
 

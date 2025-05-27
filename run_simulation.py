@@ -7,10 +7,12 @@ import pandas as pd
 import numpy as np
 
 
-base = 'USD'
+base = 'CHF'
 portfolio_name = 'portfolio' + base
 
 
+
+title = 'boost2_new version CHF FX'
 data = get_portfolio_data(portfolio_name,base)
 
 
@@ -35,11 +37,11 @@ df = simulate_portfolio(asset_logreturns,
                         fwd_logreturns,
                         weights,
                         hedge_ratios,
-                        start = '2011-01-01',
+                        start = '2005-10-31',
                         end = '2024-12-31',
-                        fx_portfolio = False)
+                        fx_portfolio = True)
 
-plot_simulation(df)
+plot_simulation(df,title)
 
 
 

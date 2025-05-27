@@ -10,7 +10,9 @@ def create_ted_factor():
     df['date'] = pd.to_datetime(df['date'],dayfirst=True)
     df.set_index('date', inplace=True)
 
-    df['ted_spread'] = df['CPDR9AFC Index'] - df['USGB090Y Index']
+    df['ted_spread'] = (df['US0003M Index'] - df['USGB090Y Index'])
+
+
     new_df = df[['ted_spread']]
     df = new_df
 

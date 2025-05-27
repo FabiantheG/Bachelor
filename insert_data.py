@@ -2,14 +2,14 @@ from database.insert import *
 from database.models import *
 from database.functions import *
 
-insert_provider = False
-insert_deposit_rates = False
-insert_assets = False
-insert_bonds = False
-insert_cpi = False
-insert_fx = False
-insert_gdp = False
-insert_factors = False
+insert_provider = True
+insert_deposit_rates = True
+insert_assets = True
+insert_bonds = True
+insert_cpi = True
+insert_fx = True
+insert_gdp = True
+insert_factors = True
 insert_portfolios = True
 
 
