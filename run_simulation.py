@@ -6,13 +6,14 @@ from simulation.functions import *
 import pandas as pd
 import numpy as np
 
-
-base = 'CHF'
+model = 'xgboost'
+base = 'GBP'
 portfolio_name = 'portfolio' + base
+fx = True
 
 
 
-title = 'boost2_new version CHF FX'
+title = model +' '+ base + ' FX' if fx else model +' '+ base
 data = get_portfolio_data(portfolio_name,base)
 
 
@@ -39,11 +40,11 @@ df = simulate_portfolio(asset_logreturns,
                         hedge_ratios,
                         start = '2005-10-31',
                         end = '2024-12-31',
-                        fx_portfolio = True)
+                        fx_portfolio = fx)
 
-plot_simulation(df,title)
+plot_simulation(df,title,save = True)
 
-
+print(predict)
 
 
 

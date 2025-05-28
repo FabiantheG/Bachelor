@@ -5,7 +5,7 @@ import pandas as pd
 
 
 
-def plot_simulation(df, title='Growth', save=False, plot=True):
+def plot_simulation(df, title='Growth',ylabel = 'Growth', save=False, plot=True):
     """
     Plot and optionally save the growth of a portfolio over time.
 
@@ -38,9 +38,9 @@ def plot_simulation(df, title='Growth', save=False, plot=True):
         fancybox=True,
         edgecolor='black'
     )
-    plt.title(title)
+    plt.title(title, fontsize=16)
     plt.xlabel('Time')
-    plt.ylabel('Growth')
+    plt.ylabel(ylabel)
 
     if save:
         plt.savefig('pictures/' + title + '.png')  # Save first, then show

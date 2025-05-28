@@ -28,8 +28,9 @@ def create_afd_factor(base_currency):
     spot_df = pd.concat(spot_data, axis=1)
     fwd_df = pd.concat(fwd_data, axis=1)
 
-    # 2. Calculate carry premium = (Spot - Forward) / Spot
-    forward_logreturn = np.log(fwd_df / spot_df)
+    print(spot_df)
+    print(spot_df)
+    forward_logreturn = np.log(spot_df / fwd_df )
     df = forward_logreturn.dot(weights) # calculate the mean
     df = df.dropna() # drop all NaN
     df = pd.DataFrame(df)

@@ -22,7 +22,7 @@ def create_ted_factor():
     df = df.resample('M').last()
 
 
-    df['rate'] = (1 / 3) * np.log(df['rate'] / df['rate'].shift(3))
+    #df['rate'] = (1 / 3) * np.log(df['rate'] / df['rate'].shift(3))
 
     df = df.dropna()
     return df

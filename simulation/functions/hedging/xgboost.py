@@ -150,7 +150,8 @@ def xgboost(cur_list, hedge_logreturn, factors, window=60, duration=1, xgb_facto
     factors = pd.concat([factors,predicted_dollar,predicted_carry], axis=1,join = 'inner')
 
     hedge_returns = pd.concat([hedge_logreturn,predicted_hedgereturns], axis=1,join = 'inner')
-
+    hedge_returns = hedge_returns.dropna()
+    factors = factors.dropna()
     return hedge_ratio_df.astype(float), hit_ratio_dict, factors, hedge_returns
 
 
