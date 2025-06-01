@@ -19,3 +19,6 @@ from database.functions.create_afd_factor import create_afd_factor
 from database.functions.create_volatility_factor import create_volatility_factor
 from database.functions.create_ted_factor import create_ted_factor
 from database.functions.create_commodity_factor import create_commodity_factor
+
+
+from database.functions.create_fxvolatility_factor import create_fxvolatility_factor

@@ -7,7 +7,7 @@ import pandas as pd
 import numpy as np
 
 model = 'xgboost'
-base = 'GBP'
+base = ''
 portfolio_name = 'portfolio' + base
 fx = True
 

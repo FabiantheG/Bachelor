@@ -43,5 +43,5 @@ def get_simulation(portfolio_name, hedge_name, version):
         print("No simulation time series data found.")
         return None
 
-    df = orm_list_to_df(sim_data, date_index=True)[["hedged_growth", "unhedged_growth",'local_growth']]
+    df = orm_list_to_df(sim_data, date_index=True)[["hedged_growth", "unhedged_growth",'local_growth','fully_hedged_growth']]
     return df

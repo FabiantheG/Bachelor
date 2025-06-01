@@ -76,7 +76,8 @@ def insert_simulation(portfolio_name: str, hedge_name: str, version: float, df: 
                     "date": row["date"],
                     "unhedged_growth": row["unhedged_growth"],
                     "hedged_growth": row["hedged_growth"],
-                    "local_growth": row["local_growth"]
+                    "local_growth": row["local_growth"],
+                    "fully_hedged_growth": row["fully_hedged_growth"]
                 }
                 for _, row in df.iterrows() if row["date"] not in existing_dates
             ]

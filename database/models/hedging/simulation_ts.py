@@ -10,6 +10,7 @@ class SIMULATION_TS(Base):
     unhedged_growth = Column(Float, nullable=False)
     hedged_growth = Column(Float, nullable=False)
     local_growth = Column(Float, nullable=False)
+    fully_hedged_growth = Column(Float, nullable=False)
 
 
 

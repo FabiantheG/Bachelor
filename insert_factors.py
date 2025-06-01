@@ -31,4 +31,14 @@ insert_factor('ted',ted)
 insert_factor('commodity',commodity)
 
 
+g10 = ['EUR', 'JPY', 'CHF', 'GBP', 'AUD', 'CAD', 'NZD', 'NOK', 'SEK', 'USD']
+
+for cur in g10:
+    g10_new = [cur2 for cur2 in g10 if cur2 != cur]
+
+    for quote in g10_new:
+        name = 'fxvolatility'+cur + quote
+        x = create_fxvolatility_factor(cur,quote)
+        insert_factor(name,x)
+
 
