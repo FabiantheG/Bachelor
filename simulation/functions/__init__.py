@@ -16,4 +16,7 @@ from simulation.functions.hedging.xgboost import xgboost, xgboost_mean, xgboost_
 
 from simulation.functions.hedging.lightbgm import lightbgm
 
+from simulation.functions.get_mean_df import get_mean_df
+from simulation.functions.get_comparison_df import get_comparison_df
+from simulation.functions.hyper_analysis import hyper_analysis
 
